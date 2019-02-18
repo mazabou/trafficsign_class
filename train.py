@@ -63,9 +63,9 @@ if __name__ == '__main__':
     model = Model(inputs=base_model.input, outputs=predictions)
 
     # model.summary()
-    # for i, layer in enumerate(base_model.layers):
-    #     print(i, layer.name)
-
+    for i, layer in enumerate(base_model.layers):
+        print(i, layer.name)
+    exit(0)
     for layer in base_model.layers:
         layer.trainable = False
 
@@ -111,8 +111,8 @@ if __name__ == '__main__':
 
     datagen.fit(x_train)
 
-    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=32),
-                                  steps_per_epoch=ceil(len(x_train) / 32),
+    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=64),
+                                  steps_per_epoch=ceil(len(x_train) / 64),
                                   epochs=20,
                                   verbose=1,
                                   validation_data=(x_test, y_test))
@@ -125,14 +125,44 @@ if __name__ == '__main__':
         layer.trainable = True
 
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
-    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=32),
-                                  steps_per_epoch=ceil(len(x_train) / 32),
+    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=64),
+                                  steps_per_epoch=ceil(len(x_train) / 64),
                                   epochs=80,
                                   verbose=1,
                                   validation_data=(x_test, y_test))
-    plot_history(history, "fine_tuning")
+    plot_history(history, "fine_tuning_1_")
 
-    model.save("mobilenet_curve.h5", overwrite=True)
+    model.save("mobilenet_curve_1.h5", overwrite=True)
+
+    # unfroze the 6 last blocks of mobile net
+    for layer in model.layers[:87]:
+        layer.trainable = False
+    for layer in model.layers[87:]:
+        layer.trainable = True
+
+    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
+    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=64),
+                                  steps_per_epoch=ceil(len(x_train) / 64),
+                                  epochs=80,
+                                  verbose=1,
+                                  validation_data=(x_test, y_test))
+    plot_history(history, "fine_tuning_2_")
+
+    model.save("mobilenet_curve_2.h5", overwrite=True)
+
+    # unfroze all mobile net
+    for layer in model.layers:
+        layer.trainable = True
+
+    model.compile(optimizer=SGD(lr=0.00001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
+    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=64),
+                                  steps_per_epoch=ceil(len(x_train) / 64),
+                                  epochs=160,
+                                  verbose=1,
+                                  validation_data=(x_test, y_test))
+    plot_history(history, "fine_tuning_f_")
+
+    model.save("mobilenet_curve_f.h5", overwrite=True)
 
 
 
