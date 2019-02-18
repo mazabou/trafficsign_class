@@ -1,0 +1,10 @@
+*
+
+!*/
+
+!.gitignore
+!*.py
+!*.ipynb
+!*.png
+*.npz
+
