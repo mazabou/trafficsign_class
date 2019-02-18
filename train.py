@@ -1,3 +1,7 @@
+import matplotlib
+# solve plotting issues with matplotlib when no X connection is available
+matplotlib.use('Agg')
+
 from keras.applications.mobilenetv2 import MobileNetV2, preprocess_input
 from keras.layers import Dense
 from keras.models import Model
@@ -5,9 +9,6 @@ from keras.utils import to_categorical
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import SGD
 
-from sklearn.metrics import confusion_matrix
-
-import pandas as pd
 import os
 from math import ceil
 import numpy as np
