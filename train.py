@@ -63,9 +63,9 @@ if __name__ == '__main__':
     model = Model(inputs=base_model.input, outputs=predictions)
 
     # model.summary()
-    for i, layer in enumerate(base_model.layers):
-        print(i, layer.name)
-    exit(0)
+    # for i, layer in enumerate(base_model.layers):
+    #     print(i, layer.name)
+    # exit(0)
     for layer in base_model.layers:
         layer.trainable = False
 
