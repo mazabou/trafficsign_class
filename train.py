@@ -56,15 +56,32 @@ def plot_history(history, base_name=""):
 
 
 if __name__ == '__main__':
-    batch_size = 1024
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("epoch", type=int)
+    parser.add_argument('-b', '--batch-size',
+                        required=False,
+                        default=1024,
+                        type=int,
+                        dest="batch")
+    parser.add_argument('-lr', '--learning-rate',
+                        required=False,
+                        default=1e-4,
+                        type=float,
+                        dest="lr")
+    parser.add_argument('-decay', '--learning-rate-decay',
+                        required=False,
+                        default=1e-6,
+                        type=float,
+                        dest="decay")
+    args = parser.parse_args()
+    batch_size = args.batch
 
     base_model = MobileNetV2(weights='imagenet',
                              include_top=False,
                              input_shape=(96, 96, 3),
                              pooling='avg')
-
-    # MobileNetV2(weights='imagenet', include_top=True).summary()
-
     predictions = Dense(len(out_classes), activation='softmax')(base_model.outputs[0])
     model = Model(inputs=base_model.input, outputs=predictions)
 
@@ -80,14 +97,6 @@ if __name__ == '__main__':
     #             blocks[b].append(i)
     # exit(0)
 
-    data_loader = SignDataLoader(path_images_dir="/home/nicolas/data/curve",
-                                 classes_to_detect=out_classes,
-                                 images_size=model.input_shape[1:3],
-                                 mapping=mapping,
-                                 classes_flip_and_rotation=rotation_and_flips,
-                                 symmetric_classes=h_symmetry_classes,
-                                 train_test_split=0.2)
-
     if os.path.isfile("data.npz"):
         savez = np.load("data.npz")
         x_train = savez["x_train"]
@@ -96,6 +105,13 @@ if __name__ == '__main__':
         y_test = savez["y_test"]
         out_classes = savez["out_classes"]
     else:
+        data_loader = SignDataLoader(path_images_dir="/home/nicolas/data/curve",
+                                     classes_to_detect=out_classes,
+                                     images_size=model.input_shape[1:3],
+                                     mapping=mapping,
+                                     classes_flip_and_rotation=rotation_and_flips,
+                                     symmetric_classes=h_symmetry_classes,
+                                     train_test_split=0.2)
         (x_train, y_train), (x_test, y_test) = data_loader.load_data()
         y_train = to_categorical(y_train, len(out_classes))
         y_test = to_categorical(y_test, len(out_classes))
@@ -117,56 +133,56 @@ if __name__ == '__main__':
                                  fill_mode='nearest',
                                  horizontal_flip=False,
                                  vertical_flip=False)
-
     datagen.fit(x_train)
 
     for layer in base_model.layers:
         layer.trainable = False
-
-    model.compile(optimizer=rmsprop(lr=0.001, decay=1e-5), loss='categorical_crossentropy', metrics=["accuracy"])
+    model.compile(optimizer=rmsprop(lr=args.lr, decay=args.decay),
+                  loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=60,
+                                  epochs=args.epoch,
                                   verbose=1,
                                   validation_data=(x_test, y_test),
                                   use_multiprocessing=True)
     plot_history(history, "dense_")
+    model.save("mobilenet_dense.h5", overwrite=True)
 
-    # unfroze the 3 last blocks of mobile net
-    for layer in model.layers[:113]:
-        layer.trainable = False
-    for layer in model.layers[113:]:
-        layer.trainable = True
-
-    model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
-                  loss='categorical_crossentropy', metrics=["accuracy"])
-    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-                                  steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=160,
-                                  verbose=1,
-                                  validation_data=(x_test, y_test),
-                                  use_multiprocessing=True)
-    plot_history(history, "fine_tuning_1_")
-
-    model.save("mobilenet_curve_1.h5", overwrite=True)
-
-    # unfroze the 6 last blocks of mobile net
-    for layer in model.layers[:87]:
-        layer.trainable = False
-    for layer in model.layers[87:]:
-        layer.trainable = True
-
-    model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
-                  loss='categorical_crossentropy', metrics=["accuracy"])
-    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-                                  steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=160,
-                                  verbose=1,
-                                  validation_data=(x_test, y_test),
-                                  use_multiprocessing=True)
-    plot_history(history, "fine_tuning_2_")
-
-    model.save("mobilenet_curve_2.h5", overwrite=True)
+    # # unfroze the 3 last blocks of mobile net
+    # for layer in model.layers[:113]:
+    #     layer.trainable = False
+    # for layer in model.layers[113:]:
+    #     layer.trainable = True
+    #
+    # model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+    #               loss='categorical_crossentropy', metrics=["accuracy"])
+    # history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+    #                               steps_per_epoch=ceil(len(x_train) / batch_size),
+    #                               epochs=160,
+    #                               verbose=1,
+    #                               validation_data=(x_test, y_test),
+    #                               use_multiprocessing=True)
+    # plot_history(history, "fine_tuning_1_")
+    #
+    # model.save("mobilenet_curve_1.h5", overwrite=True)
+    #
+    # # unfroze the 6 last blocks of mobile net
+    # for layer in model.layers[:87]:
+    #     layer.trainable = False
+    # for layer in model.layers[87:]:
+    #     layer.trainable = True
+    #
+    # model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+    #               loss='categorical_crossentropy', metrics=["accuracy"])
+    # history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+    #                               steps_per_epoch=ceil(len(x_train) / batch_size),
+    #                               epochs=160,
+    #                               verbose=1,
+    #                               validation_data=(x_test, y_test),
+    #                               use_multiprocessing=True)
+    # plot_history(history, "fine_tuning_2_")
+    #
+    # model.save("mobilenet_curve_2.h5", overwrite=True)
 
     # # unfroze all mobile net
     # for layer in model.layers:

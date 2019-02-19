@@ -22,7 +22,7 @@ if __name__ == '__main__':
     parser.add_argument("epoch", type=int)
     parser.add_argument('-b', '--batch-size',
                         required=False,
-                        default=64,
+                        default=1024,
                         type=int,
                         dest="batch")
     parser.add_argument('-lr', '--learning-rate',
