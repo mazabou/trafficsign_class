@@ -16,6 +16,21 @@ import matplotlib.pyplot as plt
 
 from data_generator import SignDataLoader
 
+out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
+               "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
+               "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
+h_symmetry_classes = [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
+                      ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")]
+rotation_and_flips = {"W12-1": ('h',),
+                      "W2-1": ('v', 'h', 'd'),
+                      "W2-2_L": ('v',),
+                      "W2-2_R": ('v',),
+                      "W3-1": ('h',),
+                      "W3-3": ('h',),
+                      "W6-3": ('h',),
+                      }
+mapping = {c: i for i, c in enumerate(out_classes)}
+
 
 def plot_history(history, base_name=""):
     plt.clf()
@@ -42,20 +57,6 @@ def plot_history(history, base_name=""):
 
 if __name__ == '__main__':
     batch_size = 1024
-    out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
-                   "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
-                   "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
-    h_symmetry_classes = [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
-                          ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")]
-    rotation_and_flips = {"W12-1": ('h',),
-                          "W2-1": ('v', 'h', 'd'),
-                          "W2-2_L": ('v',),
-                          "W2-2_R": ('v',),
-                          "W3-1": ('h',),
-                          "W3-3": ('h',),
-                          "W6-3": ('h',),
-                          }
-    mapping = {c: i for i, c in enumerate(out_classes)}
 
     base_model = MobileNetV2(weights='imagenet',
                              include_top=False,
@@ -68,8 +69,15 @@ if __name__ == '__main__':
     model = Model(inputs=base_model.input, outputs=predictions)
 
     # model.summary()
+    # blocks = {}
     # for i, layer in enumerate(base_model.layers):
-    #     print(i, layer.name)
+    #     s = layer.name.split('_')
+    #     if s[0] == "block":
+    #         b = int(s[1])
+    #         if b not in blocks:
+    #             blocks[b] = [i]
+    #         else:
+    #             blocks[b].append(i)
     # exit(0)
 
     data_loader = SignDataLoader(path_images_dir="/home/nicolas/data/curve",
