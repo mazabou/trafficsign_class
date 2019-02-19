@@ -42,7 +42,6 @@ if __name__ == '__main__':
                         dest="unfroze_block_count")
     args = parser.parse_args()
 
-    batch_size = 1024
     savez = np.load("data.npz")
     x_train = savez["x_train"]
     y_train = savez["y_train"]
@@ -84,7 +83,7 @@ if __name__ == '__main__':
             else:
                 blocks[b].append(i)
     for b, layers_id in blocks.items():
-        if b > len(blocks) - args.unfroze_block_count:
+        if b > (len(blocks.keys()) - args.unfroze_block_count):
             for layer_id in layers_id:
                 base_model.layers[layer_id].trainable = True
         else:
