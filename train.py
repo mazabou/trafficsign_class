@@ -41,7 +41,7 @@ def plot_history(history, base_name=""):
 
 
 if __name__ == '__main__':
-    batch_size = 256
+    batch_size = 1024
     out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
                    "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
                    "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=20,
+                                  epochs=30,
                                   verbose=1,
                                   validation_data=(x_test, y_test))
     plot_history(history, "dense_")
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=80,
+                                  epochs=160,
                                   verbose=1,
                                   validation_data=(x_test, y_test))
     plot_history(history, "fine_tuning_1_")
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=80,
+                                  epochs=160,
                                   verbose=1,
                                   validation_data=(x_test, y_test))
     plot_history(history, "fine_tuning_2_")
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     model.compile(optimizer=SGD(lr=0.00001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=160,
+                                  epochs=40,
                                   verbose=1,
                                   validation_data=(x_test, y_test))
     plot_history(history, "fine_tuning_f_")
