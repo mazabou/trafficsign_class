@@ -101,7 +101,7 @@ if __name__ == '__main__':
                                   use_multiprocessing=True)
     plot_history(history, args.weightsOut)
 
-    model.save(args.weightsOut, overwrite=True)
+    model.save_weights(args.weightsOut, overwrite=True)
 
 
 

@@ -146,7 +146,7 @@ if __name__ == '__main__':
                                   validation_data=(x_test, y_test),
                                   use_multiprocessing=True)
     plot_history(history, "dense_")
-    model.save("mobilenet_dense.h5", overwrite=True)
+    model.save_weights("mobilenet_dense.h5", overwrite=True)
 
     # # unfroze the 3 last blocks of mobile net
     # for layer in model.layers[:113]:
