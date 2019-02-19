@@ -7,7 +7,7 @@ from keras.layers import Dense
 from keras.models import Model
 from keras.utils import to_categorical
 from keras.preprocessing.image import ImageDataGenerator
-from keras.optimizers import SGD
+from keras.optimizers import SGD, rmsprop
 
 import os
 from math import ceil
@@ -71,10 +71,6 @@ if __name__ == '__main__':
     # for i, layer in enumerate(base_model.layers):
     #     print(i, layer.name)
     # exit(0)
-    for layer in base_model.layers:
-        layer.trainable = False
-
-    model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=["accuracy"])
 
     data_loader = SignDataLoader(path_images_dir="/home/nicolas/data/curve",
                                  classes_to_detect=out_classes,
@@ -116,11 +112,16 @@ if __name__ == '__main__':
 
     datagen.fit(x_train)
 
+    for layer in base_model.layers:
+        layer.trainable = False
+
+    model.compile(optimizer=rmsprop(lr=0.001, decay=1e-5), loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=30,
+                                  epochs=60,
                                   verbose=1,
-                                  validation_data=(x_test, y_test))
+                                  validation_data=(x_test, y_test),
+                                  use_multiprocessing=True)
     plot_history(history, "dense_")
 
     # unfroze the 3 last blocks of mobile net
@@ -129,12 +130,14 @@ if __name__ == '__main__':
     for layer in model.layers[113:]:
         layer.trainable = True
 
-    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
+    model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+                  loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
                                   epochs=160,
                                   verbose=1,
-                                  validation_data=(x_test, y_test))
+                                  validation_data=(x_test, y_test),
+                                  use_multiprocessing=True)
     plot_history(history, "fine_tuning_1_")
 
     model.save("mobilenet_curve_1.h5", overwrite=True)
@@ -145,29 +148,33 @@ if __name__ == '__main__':
     for layer in model.layers[87:]:
         layer.trainable = True
 
-    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
+    model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+                  loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
                                   epochs=160,
                                   verbose=1,
-                                  validation_data=(x_test, y_test))
+                                  validation_data=(x_test, y_test),
+                                  use_multiprocessing=True)
     plot_history(history, "fine_tuning_2_")
 
     model.save("mobilenet_curve_2.h5", overwrite=True)
 
-    # unfroze all mobile net
-    for layer in model.layers:
-        layer.trainable = True
-
-    model.compile(optimizer=SGD(lr=0.00001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
-    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-                                  steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=40,
-                                  verbose=1,
-                                  validation_data=(x_test, y_test))
-    plot_history(history, "fine_tuning_f_")
-
-    model.save("mobilenet_curve_f.h5", overwrite=True)
+    # # unfroze all mobile net
+    # for layer in model.layers:
+    #     layer.trainable = True
+    #
+    # model.compile(optimizer=SGD(lr=0.00001, momentum=0.9, decay=1e-7),
+    #               loss='categorical_crossentropy', metrics=["accuracy"])
+    # history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+    #                               steps_per_epoch=ceil(len(x_train) / batch_size),
+    #                               epochs=40,
+    #                               verbose=1,
+    #                               validation_data=(x_test, y_test),
+    #                               use_multiprocessing=True)
+    # plot_history(history, "fine_tuning_f_")
+    #
+    # model.save("mobilenet_curve_f.h5", overwrite=True)
 
 
 
