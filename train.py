@@ -13,6 +13,7 @@ import os
 from math import ceil
 import numpy as np
 import matplotlib.pyplot as plt
+import json
 
 from data_generator import SignDataLoader
 
@@ -121,6 +122,8 @@ if __name__ == '__main__':
                             out_classes=out_classes)
     print(x_train.shape[0], 'train samples')
     print(x_test.shape[0], 'test samples')
+    with open("mapping.json", 'w') as json_mapping:
+        json.dump(mapping, json_mapping, indent=4)
 
     datagen = ImageDataGenerator(featurewise_center=False,
                                  featurewise_std_normalization=False,
