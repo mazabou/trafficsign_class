@@ -17,19 +17,27 @@ import json
 
 from data_generator import SignDataLoader
 
-out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
-               "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
-               "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
-h_symmetry_classes = [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
-                      ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")]
-rotation_and_flips = {"W12-1": ('h',),
-                      "W2-1": ('v', 'h', 'd'),
-                      "W2-2_L": ('v',),
-                      "W2-2_R": ('v',),
-                      "W3-1": ('h',),
-                      "W3-3": ('h',),
-                      "W6-3": ('h',),
+class_name = "Rectangular"
+out_classes = ["W13-1P_10", "W13-1P_15", "W13-1P_20", "W13-1P_25", "W13-1P_30",
+               "W13-1P_35", "W13-1P_45", "W16-7P", "W1-8_L", "W1-8_R", "W1-7",
+               "W1-6_L", "W1-6_R"]
+h_symmetry_classes = [("W1-6_L", "W1-6_R"), ("W1-8_L", "W1-8_R")]
+rotation_and_flips = {"W1-7": ('h', 'v')
                       }
+# class_name = "Diamond"
+# out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
+#                "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
+#                "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
+# h_symmetry_classes = [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
+#                       ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")]
+# rotation_and_flips = {"W12-1": ('h',),
+#                       "W2-1": ('v', 'h', 'd'),
+#                       "W2-2_L": ('v',),
+#                       "W2-2_R": ('v',),
+#                       "W3-1": ('h',),
+#                       "W3-3": ('h',),
+#                       "W6-3": ('h',),
+#                       }
 mapping = {c: i for i, c in enumerate(out_classes)}
 
 
@@ -98,7 +106,7 @@ if __name__ == '__main__':
     #             blocks[b].append(i)
     # exit(0)
 
-    if os.path.isfile("data.npz"):
+    if os.path.isfile("{}.npz".format(class_name)):
         savez = np.load("data.npz")
         x_train = savez["x_train"]
         y_train = savez["y_train"]
@@ -118,11 +126,11 @@ if __name__ == '__main__':
         y_test = to_categorical(y_test, len(out_classes))
         x_train = np.stack([preprocess_input(x) for x in x_train])
         x_test = np.stack([preprocess_input(x) for x in x_test])
-        np.savez_compressed("data.npz", x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test,
+        np.savez_compressed("{}.npz".format(class_name), x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test,
                             out_classes=out_classes)
     print(x_train.shape[0], 'train samples')
     print(x_test.shape[0], 'test samples')
-    with open("mapping.json", 'w') as json_mapping:
+    with open("{}_mapping.json".format(class_name), 'w') as json_mapping:
         json.dump(mapping, json_mapping, indent=4)
 
     datagen = ImageDataGenerator(featurewise_center=False,
@@ -149,7 +157,7 @@ if __name__ == '__main__':
                                   validation_data=(x_test, y_test),
                                   use_multiprocessing=True)
     plot_history(history, "dense_")
-    model.save("mobilenet_dense.h5", overwrite=True)
+    model.save("mobilenet_{}_dense.h5".format(class_name), overwrite=True)
 
     # unfroze the 3 last blocks of mobile net
     for layer in model.layers[:113]:
@@ -164,9 +172,9 @@ if __name__ == '__main__':
                                   verbose=1,
                                   validation_data=(x_test, y_test),
                                   use_multiprocessing=True)
-    plot_history(history, "fine_tuning_1_")
+    plot_history(history, "{}_fine_tuning_1_".format(class_name))
 
-    model.save("mobilenet_curve_1.h5", overwrite=True)
+    model.save("mobilenet_{}_1.h5".format(class_name), overwrite=True)
 
     # unfroze the 6 last blocks of mobile net
     for layer in model.layers[:87]:
@@ -181,24 +189,24 @@ if __name__ == '__main__':
                                   verbose=1,
                                   validation_data=(x_test, y_test),
                                   use_multiprocessing=True)
-    plot_history(history, "fine_tuning_2_")
+    plot_history(history, "{}_fine_tuning_2_".format(class_name))
 
-    model.save("mobilenet_curve_2.h5", overwrite=True)
+    model.save("mobilenet_{}_2.h5".format(class_name), overwrite=True)
 
-    # unfroze all mobile net
-    for layer in model.layers:
-        layer.trainable = True
-    model.compile(optimizer=SGD(lr=0.00001, momentum=0.9, decay=1e-7),
-                  loss='categorical_crossentropy', metrics=["accuracy"])
-    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-                                  steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=200,
-                                  verbose=1,
-                                  validation_data=(x_test, y_test),
-                                  use_multiprocessing=True)
-    plot_history(history, "fine_tuning_f_")
-
-    model.save("mobilenet_curve_f.h5", overwrite=True)
+    # # unfroze all mobile net
+    # for layer in model.layers:
+    #     layer.trainable = True
+    # model.compile(optimizer=SGD(lr=0.00001, momentum=0.9, decay=1e-7),
+    #               loss='categorical_crossentropy', metrics=["accuracy"])
+    # history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+    #                               steps_per_epoch=ceil(len(x_train) / batch_size),
+    #                               epochs=200,
+    #                               verbose=1,
+    #                               validation_data=(x_test, y_test),
+    #                               use_multiprocessing=True)
+    # plot_history(history, "fine_tuning_f_")
+    #
+    # model.save("mobilenet_curve_f.h5", overwrite=True)
 
 
 
