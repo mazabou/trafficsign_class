@@ -106,8 +106,9 @@ if __name__ == '__main__':
     #             blocks[b].append(i)
     # exit(0)
 
-    if os.path.isfile("{}.npz".format(class_name)):
-        savez = np.load("data.npz")
+    data_file_path = "{}.npz".format(class_name)
+    if os.path.isfile(data_file_path):
+        savez = np.load(data_file_path)
         x_train = savez["x_train"]
         y_train = savez["y_train"]
         x_test = savez["x_test"]
@@ -126,7 +127,7 @@ if __name__ == '__main__':
         y_test = to_categorical(y_test, len(out_classes))
         x_train = np.stack([preprocess_input(x) for x in x_train])
         x_test = np.stack([preprocess_input(x) for x in x_test])
-        np.savez_compressed("{}.npz".format(class_name), x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test,
+        np.savez_compressed(data_file_path, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test,
                             out_classes=out_classes)
     print(x_train.shape[0], 'train samples')
     print(x_test.shape[0], 'test samples')
