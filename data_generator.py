@@ -28,7 +28,11 @@ class SignDataLoader:
     def load_data(self):
         for sign_class in self.classes:
             for image_path in iglob(os.path.join(self.base_dir, sign_class, "*.jpg")):
-                img = load_img(image_path, target_size=self.images_size)
+                try:
+                    img = load_img(image_path, target_size=self.images_size)
+                except IOError:
+                    print("Unable to read file {}".format(image_path))
+                    continue
                 img = img_to_array(img)
                 if sign_class in self.classes_flip_and_rotation:
                     for transformed_image in self.apply_transform(img, self.classes_flip_and_rotation[sign_class]):

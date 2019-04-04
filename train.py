@@ -17,27 +17,36 @@ import json
 
 from data_generator import SignDataLoader
 
-class_name = "Rectangular"
-out_classes = ["W13-1P_10", "W13-1P_15", "W13-1P_20", "W13-1P_25", "W13-1P_30",
-               "W13-1P_35", "W13-1P_45", "W16-7P", "W1-8_L", "W1-8_R", "W1-7",
-               "W1-6_L", "W1-6_R"]
-h_symmetry_classes = [("W1-6_L", "W1-6_R"), ("W1-8_L", "W1-8_R")]
-rotation_and_flips = {"W1-7": ('h', 'v')
+# class_name = "RedRoundSign"
+# out_classes = ['p1', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p2', 'p20', 'p21',
+#                'p22', 'p23', 'p24', 'p25', 'p26', 'p27', 'p28', 'p29', 'p3', 'p4', 'p5', 'p5L', 'p5R', 'p6', 'p7',
+#                'p7R', 'p7L', 'p8', 'p9', 'pa10', 'pa12', 'pa13', 'pa14', 'pa8', 'pax', 'pb', 'pc', 'ph', 'ph1.5',
+#                'ph2', 'ph2.1', 'ph2.2', 'ph2.4', 'ph2.5', 'ph2.6', 'ph2.8', 'ph2.9', 'ph3.x', 'ph3', 'ph3.2',
+#                'ph3.3', 'ph3.5', 'ph3.7', 'ph3.8', 'ph38', 'ph39', 'ph45', 'ph4', 'ph4.2', 'ph4.3', 'ph4.4',
+#                'ph4.5', 'ph4.6', 'ph4.8', 'ph5', 'ph5.3', 'ph5.5', 'ph6', 'phx', 'pl0', 'pl10', 'pl100', 'pl110',
+#                'pl120', 'pl15', 'pl20', 'pl25', 'pl3', 'pl30', 'pl35', 'pl4', 'pl40', 'pl5', 'pl50', 'pl60',
+#                'pl65', 'pl70', 'pl80', 'pl90', 'plx', 'pm1.5', 'pm10', 'pm13', 'pm15', 'pm2', 'pm2.5', 'pm20',
+#                'pm25', 'pm30', 'pm35', 'pm40', 'pm46', 'pm5', 'pm50', 'pm55', 'pm8', 'pn40', 'pr10', 'pr100',
+#                'pr20', 'pr30', 'pr40', 'pr45', 'pr50', 'pr60', 'pr70', 'pr80', 'prx', 'pw2', 'pw2.5', 'pw3',
+#                'pw3.2', 'pw3.5', 'pw4', 'pw4.2', 'pw4.5', 'pwx', 'po', 'p_other', 'p_prohibited...',
+#                'h_bus_and_truck_prohibited', 'h_bicycle_and_pedestrian_prohibited', 'pm49', 'pa*',
+#                'no_two_wheels_vehicules']
+# h_symmetry_classes = [("W1-6_L", "W1-6_R"), ("W1-8_L", "W1-8_R")]
+# rotation_and_flips = {"W1-7": ('h', 'v')}
+class_name = "Diamond"
+out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
+               "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
+               "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
+h_symmetry_classes = [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
+                      ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")]
+rotation_and_flips = {"W12-1": ('h',),
+                      "W2-1": ('v', 'h', 'd'),
+                      "W2-2_L": ('v',),
+                      "W2-2_R": ('v',),
+                      "W3-1": ('h',),
+                      "W3-3": ('h',),
+                      "W6-3": ('h',),
                       }
-# class_name = "Diamond"
-# out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
-#                "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
-#                "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
-# h_symmetry_classes = [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
-#                       ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")]
-# rotation_and_flips = {"W12-1": ('h',),
-#                       "W2-1": ('v', 'h', 'd'),
-#                       "W2-2_L": ('v',),
-#                       "W2-2_R": ('v',),
-#                       "W3-1": ('h',),
-#                       "W3-3": ('h',),
-#                       "W6-3": ('h',),
-#                       }
 mapping = {c: i for i, c in enumerate(out_classes)}
 
 
@@ -115,7 +124,7 @@ if __name__ == '__main__':
         y_test = savez["y_test"]
         out_classes = savez["out_classes"]
     else:
-        data_loader = SignDataLoader(path_images_dir="/home/nicolas/data/curve",
+        data_loader = SignDataLoader(path_images_dir="/home/nicolas/data/curve1+2",
                                      classes_to_detect=out_classes,
                                      images_size=model.input_shape[1:3],
                                      mapping=mapping,
