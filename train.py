@@ -17,6 +17,7 @@ import json
 
 from data_generator import SignDataLoader
 
+
 # class_name = "RedRoundSign"
 # out_classes = ['p1', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p2', 'p20', 'p21',
 #                'p22', 'p23', 'p24', 'p25', 'p26', 'p27', 'p28', 'p29', 'p3', 'p4', 'p5', 'p5L', 'p5R', 'p6', 'p7',
@@ -33,20 +34,27 @@ from data_generator import SignDataLoader
 #                'no_two_wheels_vehicules']
 # h_symmetry_classes = [("W1-6_L", "W1-6_R"), ("W1-8_L", "W1-8_R")]
 # rotation_and_flips = {"W1-7": ('h', 'v')}
-class_name = "Diamond"
-out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
-               "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
-               "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
-h_symmetry_classes = [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
-                      ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")]
-rotation_and_flips = {"W12-1": ('h',),
-                      "W2-1": ('v', 'h', 'd'),
-                      "W2-2_L": ('v',),
-                      "W2-2_R": ('v',),
-                      "W3-1": ('h',),
-                      "W3-3": ('h',),
-                      "W6-3": ('h',),
+class_name = "Rectangular"
+out_classes = ["W13-1P_10", "W13-1P_15", "W13-1P_20", "W13-1P_25", "W13-1P_30",
+               "W13-1P_35", "W13-1P_45", "W16-7P", "W1-8_L", "W1-8_R", "W1-7",
+               "W1-6_L", "W1-6_R"]
+h_symmetry_classes = [("W1-6_L", "W1-6_R"), ("W1-8_L", "W1-8_R")]
+rotation_and_flips = {"W1-7": ('h', 'v')
                       }
+# class_name = "Diamond"
+# out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
+#                "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
+#                "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
+# h_symmetry_classes = [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
+#                       ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")]
+# rotation_and_flips = {"W12-1": ('h',),
+#                       "W2-1": ('v', 'h', 'd'),
+#                       "W2-2_L": ('v',),
+#                       "W2-2_R": ('v',),
+#                       "W3-1": ('h',),
+#                       "W3-3": ('h',),
+#                       "W6-3": ('h',),
+#                       }
 mapping = {c: i for i, c in enumerate(out_classes)}
 
 
@@ -124,7 +132,7 @@ if __name__ == '__main__':
         y_test = savez["y_test"]
         out_classes = savez["out_classes"]
     else:
-        data_loader = SignDataLoader(path_images_dir="/home/nicolas/data/curve1+2",
+        data_loader = SignDataLoader(path_images_dir=os.path.expanduser("~/data/curve1+2"),
                                      classes_to_detect=out_classes,
                                      images_size=model.input_shape[1:3],
                                      mapping=mapping,
