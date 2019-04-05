@@ -179,6 +179,13 @@ if __name__ == '__main__':
                                      symmetric_classes=h_symmetry_classes,
                                      train_test_split=0.2)
         (x_train, y_train), (x_test, y_test) = data_loader.load_data()
+        with open("{0}/{0}_class_counts.json", 'w') as count_json:
+            train_names, train_counts = np.unique(y_train)
+            test_names, test_counts = np.unique(y_test)
+            train_counts_dict = {n: c for n, c in zip(train_names, train_counts)}
+            test_counts_dict = {n: c for n, c in zip(test_names, test_counts)}
+            json.dump({c: {"train": train_counts_dict[c], "test": test_counts_dict[c]} for c in out_classes},
+                      count_json, indent=4)
         y_train = to_categorical(y_train, len(out_classes))
         y_test = to_categorical(y_test, len(out_classes))
         x_train = np.stack([preprocess_input(x) for x in x_train])
