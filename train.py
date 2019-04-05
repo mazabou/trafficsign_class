@@ -14,6 +14,7 @@ from math import ceil
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+from collections import defaultdict
 
 from data_generator import SignDataLoader
 
@@ -180,10 +181,10 @@ if __name__ == '__main__':
                                      train_test_split=0.2)
         (x_train, y_train), (x_test, y_test) = data_loader.load_data()
         with open("{0}/{0}_class_counts.json".format(class_name), 'w') as count_json:
-            train_names, train_counts = np.unique(y_train)
-            test_names, test_counts = np.unique(y_test)
-            train_counts_dict = {n: c for n, c in zip(train_names, train_counts)}
-            test_counts_dict = {n: c for n, c in zip(test_names, test_counts)}
+            train_names, train_counts = np.unique(y_train, return_counts=True)
+            test_names, test_counts = np.unique(y_test, return_counts=True)
+            train_counts_dict = defaultdict(int, {n: c for n, c in zip(train_names, train_counts)})
+            test_counts_dict = defaultdict(int, {n: c for n, c in zip(test_names, test_counts)})
             json.dump({c: {"train": train_counts_dict[c], "test": test_counts_dict[c]} for c in out_classes},
                       count_json, indent=4)
         y_train = to_categorical(y_train, len(out_classes))
