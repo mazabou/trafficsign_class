@@ -179,7 +179,7 @@ if __name__ == '__main__':
                                      symmetric_classes=h_symmetry_classes,
                                      train_test_split=0.2)
         (x_train, y_train), (x_test, y_test) = data_loader.load_data()
-        with open("{0}/{0}_class_counts.json", 'w') as count_json:
+        with open("{0}/{0}_class_counts.json".format(class_name), 'w') as count_json:
             train_names, train_counts = np.unique(y_train)
             test_names, test_counts = np.unique(y_test)
             train_counts_dict = {n: c for n, c in zip(train_names, train_counts)}
