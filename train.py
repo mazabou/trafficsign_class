@@ -18,44 +18,58 @@ import json
 from data_generator import SignDataLoader
 
 
-# class_name = "RedRoundSign"
-# out_classes = ['p1', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p2', 'p20', 'p21',
-#                'p22', 'p23', 'p24', 'p25', 'p26', 'p27', 'p28', 'p29', 'p3', 'p4', 'p5', 'p5L', 'p5R', 'p6', 'p7',
-#                'p7R', 'p7L', 'p8', 'p9', 'pa10', 'pa12', 'pa13', 'pa14', 'pa8', 'pax', 'pb', 'pc', 'ph', 'ph1.5',
-#                'ph2', 'ph2.1', 'ph2.2', 'ph2.4', 'ph2.5', 'ph2.6', 'ph2.8', 'ph2.9', 'ph3.x', 'ph3', 'ph3.2',
-#                'ph3.3', 'ph3.5', 'ph3.7', 'ph3.8', 'ph38', 'ph39', 'ph45', 'ph4', 'ph4.2', 'ph4.3', 'ph4.4',
-#                'ph4.5', 'ph4.6', 'ph4.8', 'ph5', 'ph5.3', 'ph5.5', 'ph6', 'phx', 'pl0', 'pl10', 'pl100', 'pl110',
-#                'pl120', 'pl15', 'pl20', 'pl25', 'pl3', 'pl30', 'pl35', 'pl4', 'pl40', 'pl5', 'pl50', 'pl60',
-#                'pl65', 'pl70', 'pl80', 'pl90', 'plx', 'pm1.5', 'pm10', 'pm13', 'pm15', 'pm2', 'pm2.5', 'pm20',
-#                'pm25', 'pm30', 'pm35', 'pm40', 'pm46', 'pm5', 'pm50', 'pm55', 'pm8', 'pn40', 'pr10', 'pr100',
-#                'pr20', 'pr30', 'pr40', 'pr45', 'pr50', 'pr60', 'pr70', 'pr80', 'prx', 'pw2', 'pw2.5', 'pw3',
-#                'pw3.2', 'pw3.5', 'pw4', 'pw4.2', 'pw4.5', 'pwx', 'po', 'p_other', 'p_prohibited...',
-#                'h_bus_and_truck_prohibited', 'h_bicycle_and_pedestrian_prohibited', 'pm49', 'pa*',
-#                'no_two_wheels_vehicules']
-# h_symmetry_classes = [("W1-6_L", "W1-6_R"), ("W1-8_L", "W1-8_R")]
-# rotation_and_flips = {"W1-7": ('h', 'v')}
-class_name = "Rectangular"
-out_classes = ["W13-1P_10", "W13-1P_15", "W13-1P_20", "W13-1P_25", "W13-1P_30",
-               "W13-1P_35", "W13-1P_45", "W16-7P", "W1-8_L", "W1-8_R", "W1-7",
-               "W1-6_L", "W1-6_R"]
-h_symmetry_classes = [("W1-6_L", "W1-6_R"), ("W1-8_L", "W1-8_R")]
-rotation_and_flips = {"W1-7": ('h', 'v')
-                      }
-# class_name = "Diamond"
-# out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
-#                "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
-#                "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"]  # removed from training: "W1-1a_15_L"
-# h_symmetry_classes = [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
-#                       ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")]
-# rotation_and_flips = {"W12-1": ('h',),
-#                       "W2-1": ('v', 'h', 'd'),
-#                       "W2-2_L": ('v',),
-#                       "W2-2_R": ('v',),
-#                       "W3-1": ('h',),
-#                       "W3-3": ('h',),
-#                       "W6-3": ('h',),
-#                       }
-mapping = {c: i for i, c in enumerate(out_classes)}
+classes = {
+    "Rectangular": {
+        "signs_classes": ["W13-1P_10", "W13-1P_15", "W13-1P_20", "W13-1P_25", "W13-1P_30",
+                          "W13-1P_35", "W13-1P_45", "W16-7P", "W1-8_L", "W1-8_R", "W1-7",
+                          "W1-6_L", "W1-6_R"],
+        "h_symmetry": [("W1-6_L", "W1-6_R"), ("W1-8_L", "W1-8_R")],
+        "rotation_and_flips": {"W1-7": ('h', 'v')}
+    },
+    "Diamond": {
+        "signs_classes": ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
+                          "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
+                          "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"],  # removed from training: "W1-1a_15_L"
+        "h_symmetry": [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
+                       ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")],
+        "rotation_and_flips": {"W12-1": ('h',),
+                               "W2-1": ('v', 'h', 'd'),
+                               "W2-2_L": ('v',),
+                               "W2-2_R": ('v',),
+                               "W3-1": ('h',),
+                               "W3-3": ('h',),
+                               "W6-3": ('h',),
+                               }
+    },
+    "Zebra": {
+        "signs_classes": ["OM3-L", "OM3-R"],
+        "h_symmetry": [("OM3-L", "OM3-R")],
+        "rotation_and_flips": {"OM3-L": ('d',), "OM3-R": ('d',)}
+    },
+
+    "RedRoundSign": {
+        "signs_classes": ['p1', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p2', 'p20', 'p21',
+                          'p22', 'p23', 'p24', 'p25', 'p26', 'p27', 'p28', 'p29', 'p3', 'p4', 'p5L', 'p5R', 'p6',
+                          'p7R', 'p7L', 'p8', 'p9', 'pa10', 'pa12', 'pa13', 'pa14', 'pa8', 'pax', 'pb', 'pc', 'pg', 'ph', 'ph1.5',
+                          'ph2', 'ph2.1', 'ph2.2', 'ph2.4', 'ph2.5', 'ph2.6', 'ph2.8', 'ph2.9', 'ph3.x', 'ph3', 'ph3.2',
+                          'ph3.3', 'ph3.5', 'ph3.7', 'ph3.8', 'ph38', 'ph39', 'ph45', 'ph4', 'ph4.2', 'ph4.3', 'ph4.4',
+                          'ph4.5', 'ph4.6', 'ph4.8', 'ph5', 'ph5.3', 'ph5.5', 'ph6', 'phx', 'pl0', 'pl10', 'pl100', 'pl110',
+                          'pl120', 'pl15', 'pl20', 'pl25', 'pl3', 'pl30', 'pl35', 'pl4', 'pl40', 'pl5', 'pl50', 'pl60',
+                          'pl65', 'pl70', 'pl80', 'pl90', 'plx', 'pm1.5', 'pm10', 'pm13', 'pm15', 'pm2', 'pm2.5', 'pm20',
+                          'pm25', 'pm30', 'pm35', 'pm40', 'pm46', 'pm5', 'pm49', 'pm50', 'pm55', 'pm8', 'pn40', 'pr10', 'pr100',
+                          'pr20', 'pr30', 'pr40', 'pr45', 'pr50', 'pr60', 'pr70', 'pr80', 'prx', 'pw2', 'pw2.5', 'pw3',
+                          'pw3.2', 'pw3.5', 'pw4', 'pw4.2', 'pw4.5', 'p_prohibited_two_wheels_vehicules',
+                          'p_prohibited_bus_and_truck', 'p_prohibited_bicycle_and_pedestrian',
+                          'no_two_wheels_vehicules'],
+        "h_symmetry": [],
+        "rotation_and_flips": {"pne": ('v', 'h', 'd'),
+                               "pn": ('v', 'h', 'd'),
+                               "pnl": ('d',),
+                               "pc": ('v', 'h', 'd'),
+                               "pb": ('v', 'h', 'd'),
+                               }
+    },
+}
 
 
 def plot_history(history, base_name=""):
@@ -85,7 +99,18 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("epoch", type=int)
+    parser.add_argument("train_class", type=str)
+    parser.add_argument("data_dir", type=str)
+    parser.add_argument('-e', "--epoch",
+                        required=False,
+                        type=int,
+                        default=64,
+                        dest="epoch")
+    parser.add_argument('-ef', "--epoch-fine-tune",
+                        required=False,
+                        type=int,
+                        default=200,
+                        dest="epoch_fine_tune")
     parser.add_argument('-b', '--batch-size',
                         required=False,
                         default=1024,
@@ -101,8 +126,22 @@ if __name__ == '__main__':
                         default=1e-6,
                         type=float,
                         dest="decay")
+    parser.add_argument('-ignore-npz', '--ignore-precomputed-learning-file',
+                        required=False,
+                        default=False,
+                        type=bool,
+                        dest="ignore_npz")
     args = parser.parse_args()
     batch_size = args.batch
+
+    class_name = args.train_class
+    out_classes = classes[class_name]["signs_classes"]
+    rotation_and_flips = classes[class_name]["rotation_and_flips"]
+    h_symmetry_classes = classes[class_name]["h_symmetry"]
+
+    mapping = {c: i for i, c in enumerate(out_classes)}
+
+    os.makedirs(class_name, exist_ok=True)
 
     base_model = MobileNetV2(weights='imagenet',
                              include_top=False,
@@ -123,8 +162,8 @@ if __name__ == '__main__':
     #             blocks[b].append(i)
     # exit(0)
 
-    data_file_path = "{}.npz".format(class_name)
-    if os.path.isfile(data_file_path):
+    data_file_path = "{0}/{0}.npz".format(class_name)
+    if os.path.isfile(data_file_path) and not args.ignore_npz:
         savez = np.load(data_file_path)
         x_train = savez["x_train"]
         y_train = savez["y_train"]
@@ -132,7 +171,7 @@ if __name__ == '__main__':
         y_test = savez["y_test"]
         out_classes = savez["out_classes"]
     else:
-        data_loader = SignDataLoader(path_images_dir=os.path.expanduser("~/data/curve1+2"),
+        data_loader = SignDataLoader(path_images_dir=args.data_dir,
                                      classes_to_detect=out_classes,
                                      images_size=model.input_shape[1:3],
                                      mapping=mapping,
@@ -148,7 +187,7 @@ if __name__ == '__main__':
                             out_classes=out_classes)
     print(x_train.shape[0], 'train samples')
     print(x_test.shape[0], 'test samples')
-    with open("{}_mapping.json".format(class_name), 'w') as json_mapping:
+    with open("{0}/{0}_mapping.json".format(class_name), 'w') as json_mapping:
         json.dump(mapping, json_mapping, indent=4)
 
     datagen = ImageDataGenerator(featurewise_center=False,
@@ -175,7 +214,7 @@ if __name__ == '__main__':
                                   validation_data=(x_test, y_test),
                                   use_multiprocessing=True)
     plot_history(history, "dense_")
-    model.save("mobilenet_{}_dense.h5".format(class_name), overwrite=True)
+    model.save("{0}/mobilenet_{0}_dense.h5".format(class_name), overwrite=True)
 
     # unfroze the 3 last blocks of mobile net
     for layer in model.layers[:113]:
@@ -186,13 +225,13 @@ if __name__ == '__main__':
                   loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=200,
+                                  epochs=args.epoch_fine_tune,
                                   verbose=1,
                                   validation_data=(x_test, y_test),
                                   use_multiprocessing=True)
-    plot_history(history, "{}_fine_tuning_1_".format(class_name))
+    plot_history(history, "{0}/{0}_fine_tuning_1_".format(class_name))
 
-    model.save("mobilenet_{}_1.h5".format(class_name), overwrite=True)
+    model.save("{0}/mobilenet_{0}_1.h5".format(class_name), overwrite=True)
 
     # unfroze the 6 last blocks of mobile net
     for layer in model.layers[:87]:
@@ -203,28 +242,28 @@ if __name__ == '__main__':
                   loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=200,
+                                  epochs=args.epoch_fine_tune,
                                   verbose=1,
                                   validation_data=(x_test, y_test),
                                   use_multiprocessing=True)
-    plot_history(history, "{}_fine_tuning_2_".format(class_name))
+    plot_history(history, "{0}/{0}_fine_tuning_2_".format(class_name))
 
-    model.save("mobilenet_{}_2.h5".format(class_name), overwrite=True)
+    model.save("{0}/mobilenet_{0}_2.h5".format(class_name), overwrite=True)
 
-    # # unfroze all mobile net
-    # for layer in model.layers:
-    #     layer.trainable = True
-    # model.compile(optimizer=SGD(lr=0.00001, momentum=0.9, decay=1e-7),
-    #               loss='categorical_crossentropy', metrics=["accuracy"])
-    # history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-    #                               steps_per_epoch=ceil(len(x_train) / batch_size),
-    #                               epochs=200,
-    #                               verbose=1,
-    #                               validation_data=(x_test, y_test),
-    #                               use_multiprocessing=True)
-    # plot_history(history, "fine_tuning_f_")
-    #
-    # model.save("mobilenet_curve_f.h5", overwrite=True)
+    # unfroze all mobile net
+    for layer in model.layers:
+        layer.trainable = True
+    model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+                  loss='categorical_crossentropy', metrics=["accuracy"])
+    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+                                  steps_per_epoch=ceil(len(x_train) / batch_size),
+                                  epochs=args.epoch_fine_tune,
+                                  verbose=1,
+                                  validation_data=(x_test, y_test),
+                                  use_multiprocessing=True)
+    plot_history(history, "{0}/{0}_fine_tuning_f_".format(class_name))
+
+    model.save("{0}/mobilenet_{0}_f.h5".format(class_name), overwrite=True)
 
 
 
