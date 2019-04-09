@@ -12,8 +12,8 @@ import os
 import numpy as np
 
 
-if __name__ == '__main__':
-    savez = np.load("data.npz")
+def test(model_path: str, data_path, out_txt="confusion.csv"):
+    savez = np.load(data_path)
     x_train = savez["x_train"]
     y_train = savez["y_train"]
     x_test = savez["x_test"]
@@ -27,7 +27,7 @@ if __name__ == '__main__':
                              pooling='avg')
     predictions = Dense(len(out_classes), activation='softmax')(base_model.outputs[0])
     model = Model(inputs=base_model.input, outputs=predictions)
-    model.load_weights("mobilenet_curve.h5")
+    model.load_weights(model_path)
 
     # predict on testing
     pred = model.predict(x=x_test)
@@ -36,12 +36,23 @@ if __name__ == '__main__':
 
     confusion = confusion_matrix(y_test, y_pred, [i for i in range(len(out_classes))])
 
-    np.savetxt("confusion.csv", confusion, delimiter=",")
-
     df = pd.DataFrame(data=confusion, index=out_classes, columns=out_classes)
 
-    df.to_csv("confusion.csv")
+    df.to_csv(out_txt)
 
     plt.figure(figsize=confusion.shape)
-    sn.heatmap(df, annot=True, fmt="{:d}")
+    sn.heatmap(df, annot=True, fmt="d")
     plt.show()
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("model", type=str)
+    parser.add_argument("data", type=str)
+    parser.add_argument("-o", "--out", type=str, default="confusion.csv", required=False, dest="out")
+    args = parser.parse_args()
+
+    test(args.model, args.data, args.out)
+
