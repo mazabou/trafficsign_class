@@ -23,14 +23,16 @@ classes = {
     "Rectangular": {
         "signs_classes": ["W13-1P_10", "W13-1P_15", "W13-1P_20", "W13-1P_25", "W13-1P_30",
                           "W13-1P_35", "W13-1P_45", "W16-7P", "W1-8_L", "W1-8_R", "W1-7",
-                          "W1-6_L", "W1-6_R"],
+                          "W1-6_L", "W1-6_R", "rectangle-other"],
         "h_symmetry": [("W1-6_L", "W1-6_R"), ("W1-8_L", "W1-8_R")],
-        "rotation_and_flips": {"W1-7": ('h', 'v')}
+        "rotation_and_flips": {"W1-7": ('h', 'v'),
+                               "rectangle-other": ('v', 'h', 'd')}
     },
     "Diamond": {
         "signs_classes": ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
                           "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
-                          "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2"],  # removed from training: "W1-1a_15_L"
+                          "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2", "diamond-other"],
+        # removed from training: "W1-1a_15_L"
         "h_symmetry": [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
                        ("W1-5_L", "W1-5_R"), ("W2-2_L", "W2-2_R"), ("W4-1_L", "W4-1_R"), ("W1-10_R", "W1-10_L")],
         "rotation_and_flips": {"W12-1": ('h',),
