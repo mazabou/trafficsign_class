@@ -143,6 +143,7 @@ if __name__ == '__main__':
     h_symmetry_classes = classes[class_name]["h_symmetry"]
 
     mapping = {c: i for i, c in enumerate(out_classes)}
+    mapping_id_to_name = {i: c for c, i in mapping.items()}
 
     os.makedirs(class_name, exist_ok=True)
 
@@ -187,13 +188,14 @@ if __name__ == '__main__':
             test_names, test_counts = np.unique(y_test, return_counts=True)
             counts = {}
             for c, count in zip(train_names, train_counts):
-                counts[c] = {"train": int(count), "test": 0}
+                counts[mapping_id_to_name[c]] = {"train": int(count), "test": 0}
             for c, count in zip(test_names, test_counts):
-                if "train" not in counts[c]:
-                    counts[c] = {"train": 0, "test": int(count)}
+                class_name = mapping_id_to_name[c]
+                if class_name not in counts:
+                    counts[class_name] = {"train": 0, "test": int(count)}
                 else:
-                    counts[c]["test"] = int(count)
-            json.dump(counts, count_json, indent=4)
+                    counts[class_name]["test"] = int(count)
+            json.dump(obj=counts, fp=count_json, indent=4)
         y_train = to_categorical(y_train, len(out_classes))
         y_test = to_categorical(y_test, len(out_classes))
         x_train = np.stack([preprocess_input(x) for x in x_train])
