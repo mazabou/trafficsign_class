@@ -190,11 +190,11 @@ if __name__ == '__main__':
             for c, count in zip(train_names, train_counts):
                 counts[mapping_id_to_name[c]] = {"train": int(count), "test": 0}
             for c, count in zip(test_names, test_counts):
-                class_name = mapping_id_to_name[c]
-                if class_name not in counts:
-                    counts[class_name] = {"train": 0, "test": int(count)}
+                c_name = mapping_id_to_name[c]
+                if c_name not in counts:
+                    counts[c_name] = {"train": 0, "test": int(count)}
                 else:
-                    counts[class_name]["test"] = int(count)
+                    counts[c_name]["test"] = int(count)
             json.dump(obj=counts, fp=count_json, indent=4)
         y_train = to_categorical(y_train, len(out_classes))
         y_test = to_categorical(y_test, len(out_classes))
