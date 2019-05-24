@@ -14,7 +14,6 @@ from math import ceil
 import numpy as np
 import matplotlib.pyplot as plt
 import json
-from collections import defaultdict
 
 from data_generator import SignDataLoader
 
@@ -134,6 +133,11 @@ if __name__ == '__main__':
                         default=False,
                         type=bool,
                         dest="ignore_npz")
+    parser.add_argument('-ri', '--use-random-weight-initialisation',
+                        required=False,
+                        default=False,
+                        type=bool,
+                        dest="random_init")
     args = parser.parse_args()
     batch_size = args.batch
 
@@ -147,10 +151,16 @@ if __name__ == '__main__':
 
     os.makedirs(class_name, exist_ok=True)
 
-    base_model = MobileNetV2(weights='imagenet',
-                             include_top=False,
-                             input_shape=(96, 96, 3),
-                             pooling='avg')
+    if args.random_init:
+        base_model = MobileNetV2(weights=None,
+                                 include_top=False,
+                                 input_shape=(96, 96, 3),
+                                 pooling='avg')
+    else:
+        base_model = MobileNetV2(weights='imagenet',
+                                 include_top=False,
+                                 input_shape=(96, 96, 3),
+                                 pooling='avg')
     predictions = Dense(len(out_classes), activation='softmax')(base_model.outputs[0])
     model = Model(inputs=base_model.input, outputs=predictions)
 
@@ -220,52 +230,54 @@ if __name__ == '__main__':
                                  vertical_flip=False)
     datagen.fit(x_train)
 
-    for layer in base_model.layers:
-        layer.trainable = False
-    model.compile(optimizer=rmsprop(lr=args.lr, decay=args.decay),
-                  loss='categorical_crossentropy', metrics=["accuracy"])
-    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-                                  steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=args.epoch,
-                                  verbose=1,
-                                  validation_data=(x_test, y_test),
-                                  use_multiprocessing=True)
-    plot_history(history, "dense_")
-    model.save("{0}/mobilenet_{0}_dense.h5".format(class_name), overwrite=True)
+    if not args.random_init:
+        # if the network is not randomly initialized, we first fine tune the last layers
+        for layer in base_model.layers:
+            layer.trainable = False
+        model.compile(optimizer=rmsprop(lr=args.lr, decay=args.decay),
+                      loss='categorical_crossentropy', metrics=["accuracy"])
+        history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+                                      steps_per_epoch=ceil(len(x_train) / batch_size),
+                                      epochs=args.epoch,
+                                      verbose=1,
+                                      validation_data=(x_test, y_test),
+                                      use_multiprocessing=True)
+        plot_history(history, "dense_")
+        model.save("{0}/mobilenet_{0}_dense.h5".format(class_name), overwrite=True)
 
-    # unfroze the 3 last blocks of mobile net
-    for layer in model.layers[:113]:
-        layer.trainable = False
-    for layer in model.layers[113:]:
-        layer.trainable = True
-    model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
-                  loss='categorical_crossentropy', metrics=["accuracy"])
-    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-                                  steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=args.epoch_fine_tune,
-                                  verbose=1,
-                                  validation_data=(x_test, y_test),
-                                  use_multiprocessing=True)
-    plot_history(history, "{0}/{0}_fine_tuning_1_".format(class_name))
+        # unfroze the 3 last blocks of mobile net
+        for layer in model.layers[:113]:
+            layer.trainable = False
+        for layer in model.layers[113:]:
+            layer.trainable = True
+        model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+                      loss='categorical_crossentropy', metrics=["accuracy"])
+        history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+                                      steps_per_epoch=ceil(len(x_train) / batch_size),
+                                      epochs=args.epoch_fine_tune,
+                                      verbose=1,
+                                      validation_data=(x_test, y_test),
+                                      use_multiprocessing=True)
+        plot_history(history, "{0}/{0}_fine_tuning_1_".format(class_name))
 
-    model.save("{0}/mobilenet_{0}_1.h5".format(class_name), overwrite=True)
+        model.save("{0}/mobilenet_{0}_1.h5".format(class_name), overwrite=True)
 
-    # unfroze the 6 last blocks of mobile net
-    for layer in model.layers[:87]:
-        layer.trainable = False
-    for layer in model.layers[87:]:
-        layer.trainable = True
-    model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
-                  loss='categorical_crossentropy', metrics=["accuracy"])
-    history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-                                  steps_per_epoch=ceil(len(x_train) / batch_size),
-                                  epochs=args.epoch_fine_tune,
-                                  verbose=1,
-                                  validation_data=(x_test, y_test),
-                                  use_multiprocessing=True)
-    plot_history(history, "{0}/{0}_fine_tuning_2_".format(class_name))
+        # unfroze the 6 last blocks of mobile net
+        for layer in model.layers[:87]:
+            layer.trainable = False
+        for layer in model.layers[87:]:
+            layer.trainable = True
+        model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+                      loss='categorical_crossentropy', metrics=["accuracy"])
+        history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+                                      steps_per_epoch=ceil(len(x_train) / batch_size),
+                                      epochs=args.epoch_fine_tune,
+                                      verbose=1,
+                                      validation_data=(x_test, y_test),
+                                      use_multiprocessing=True)
+        plot_history(history, "{0}/{0}_fine_tuning_2_".format(class_name))
 
-    model.save("{0}/mobilenet_{0}_2.h5".format(class_name), overwrite=True)
+        model.save("{0}/mobilenet_{0}_2.h5".format(class_name), overwrite=True)
 
     # unfroze all mobile net
     for layer in model.layers:
