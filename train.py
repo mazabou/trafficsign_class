@@ -250,7 +250,7 @@ if __name__ == '__main__':
             layer.trainable = False
         for layer in model.layers[113:]:
             layer.trainable = True
-        model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+        model.compile(optimizer=SGD(lr=args.lr, momentum=0.9, decay=args.decay),
                       loss='categorical_crossentropy', metrics=["accuracy"])
         history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                       steps_per_epoch=ceil(len(x_train) / batch_size),
@@ -267,7 +267,7 @@ if __name__ == '__main__':
             layer.trainable = False
         for layer in model.layers[87:]:
             layer.trainable = True
-        model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+        model.compile(optimizer=SGD(lr=args.lr, momentum=0.9, decay=args.decay),
                       loss='categorical_crossentropy', metrics=["accuracy"])
         history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                       steps_per_epoch=ceil(len(x_train) / batch_size),
@@ -282,7 +282,7 @@ if __name__ == '__main__':
     # unfroze all mobile net
     for layer in model.layers:
         layer.trainable = True
-    model.compile(optimizer=SGD(lr=0.0005, momentum=0.9, decay=1e-6),
+    model.compile(optimizer=SGD(lr=args.lr, momentum=0.9, decay=args.decay),
                   loss='categorical_crossentropy', metrics=["accuracy"])
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                                   steps_per_epoch=ceil(len(x_train) / batch_size),
