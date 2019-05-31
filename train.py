@@ -1,8 +1,9 @@
 import matplotlib
+
 # solve plotting issues with matplotlib when no X connection is available
 matplotlib.use('Agg')
 
-from keras.applications.mobilenetv2 import MobileNetV2, preprocess_input
+from keras.applications import mobilenetv2, inception_resnet_v2, nasnet
 from keras.layers import Dense
 from keras.models import Model
 from keras.utils import to_categorical
@@ -17,7 +18,6 @@ import json
 
 from data_generator import SignDataLoader
 
-
 classes = {
     "Rectangular": {
         "signs_classes": ["W13-1P_10", "W13-1P_15", "W13-1P_20", "W13-1P_25", "W13-1P_30",
@@ -28,8 +28,10 @@ classes = {
                                "rectangle-other": ('v', 'h', 'd')}
     },
     "Diamond": {
-        "signs_classes": ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
-                          "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2", "W5-2",
+        "signs_classes": ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L",
+                          "W1-4_R",
+                          "W1-5_L", "W1-5_R", "W2-1", "W2-2_L", "W2-2_R", "W3-1", "W3-3", "W4-1_L", "W4-1_R", "W4-2",
+                          "W5-2",
                           "W6-2", "W6-3", "W7-1", "W12-1", "W14-1", "W14-2", "diamond-other", "WorkZone"],
         # removed from training: "W1-1a_15_L"
         "h_symmetry": [("W1-1_L", "W1-1_R"), ("W1-2_L", "W1-2_R"), ("W1-3_L", "W1-3_R"), ("W1-4_L", "W1-4_R"),
@@ -50,19 +52,19 @@ classes = {
     },
 
     "RedRoundSign": {
-        "signs_classes": ['p1', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p2', 'p20', 'p21',
-                          'p22', 'p23', 'p24', 'p25', 'p26', 'p27', 'p28', 'p29', 'p3', 'p4', 'p5L', 'p5R', 'p6',
-                          'p7R', 'p7L', 'p8', 'p9', 'pa10', 'pa12', 'pa13', 'pa14', 'pa8', 'pax', 'pb', 'pc', 'pg', 'ph', 'ph1.5',
-                          'ph2', 'ph2.1', 'ph2.2', 'ph2.4', 'ph2.5', 'ph2.6', 'ph2.8', 'ph2.9', 'ph3.x', 'ph3', 'ph3.2',
-                          'ph3.3', 'ph3.5', 'ph3.7', 'ph3.8', 'ph38', 'ph39', 'ph45', 'ph4', 'ph4.2', 'ph4.3', 'ph4.4',
-                          'ph4.5', 'ph4.6', 'ph4.8', 'ph5', 'ph5.3', 'ph5.5', 'ph6', 'phx', 'pl0', 'pl10', 'pl100', 'pl110',
-                          'pl120', 'pl15', 'pl20', 'pl25', 'pl3', 'pl30', 'pl35', 'pl4', 'pl40', 'pl5', 'pl50', 'pl60',
-                          'pl65', 'pl70', 'pl80', 'pl90', 'plx', 'pm1.5', 'pm10', 'pm13', 'pm15', 'pm2', 'pm2.5', 'pm20',
-                          'pm25', 'pm30', 'pm35', 'pm40', 'pm46', 'pm5', 'pm49', 'pm50', 'pm55', 'pm8', 'pn40', 'pr10', 'pr100',
-                          'pr20', 'pr30', 'pr40', 'pr45', 'pr50', 'pr60', 'pr70', 'pr80', 'prx', 'pw2', 'pw2.5', 'pw3',
-                          'pw3.2', 'pw3.5', 'pw4', 'pw4.2', 'pw4.5', 'p_prohibited_two_wheels_vehicules',
-                          'p_prohibited_bus_and_truck', 'p_prohibited_bicycle_and_pedestrian',
-                          'no_two_wheels_vehicules'],
+        "signs_classes": ['p1', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p2', 'p20',
+                          'p21', 'p22', 'p23', 'p24', 'p25', 'p26', 'p27', 'p28', 'p29', 'p3', 'p4', 'p5L', 'p5R', 'p6',
+                          'p7R', 'p7L', 'p8', 'p9', 'pa10', 'pa12', 'pa13', 'pa14', 'pa8', 'pax', 'pb', 'pc', 'pg',
+                          'ph', 'ph1.5', 'ph2', 'ph2.1', 'ph2.2', 'ph2.4', 'ph2.5', 'ph2.6', 'ph2.8', 'ph2.9', 'ph3.x',
+                          'ph3', 'ph3.2', 'ph3.3', 'ph3.5', 'ph3.7', 'ph3.8', 'ph38', 'ph39', 'ph45', 'ph4', 'ph4.2',
+                          'ph4.3', 'ph4.4', 'ph4.5', 'ph4.6', 'ph4.8', 'ph5', 'ph5.3', 'ph5.5', 'ph6', 'phx', 'pl0',
+                          'pl10', 'pl100', 'pl110', 'pl120', 'pl15', 'pl20', 'pl25', 'pl3', 'pl30', 'pl35', 'pl4',
+                          'pl40', 'pl5', 'pl50', 'pl60', 'pl65', 'pl70', 'pl80', 'pl90', 'plx', 'pm1.5', 'pm10', 'pm13',
+                          'pm15', 'pm2', 'pm2.5', 'pm20', 'pm25', 'pm30', 'pm35', 'pm40', 'pm46', 'pm5', 'pm49', 'pm50',
+                          'pm55', 'pm8', 'pn40', 'pr10', 'pr100', 'pr20', 'pr30', 'pr40', 'pr45', 'pr50', 'pr60',
+                          'pr70', 'pr80', 'prx', 'pw2', 'pw2.5', 'pw3', 'pw3.2', 'pw3.5', 'pw4', 'pw4.2', 'pw4.5',
+                          'p_prohibited_two_wheels_vehicules', 'p_prohibited_bus_and_truck',
+                          'p_prohibited_bicycle_and_pedestrian', 'no_two_wheels_vehicules'],
         "h_symmetry": [],
         "rotation_and_flips": {"pne": ('v', 'h', 'd'),
                                "pn": ('v', 'h', 'd'),
@@ -138,6 +140,22 @@ if __name__ == '__main__':
                         default=False,
                         type=bool,
                         dest="random_init")
+    parser.add_argument('-ua', '--unfroze-all-convolution-layer-directly',
+                        required=False,
+                        default=False,
+                        type=bool,
+                        dest="unfroze_all")
+    parser.add_argument('-m', '--model-name',
+                        required=False,
+                        default="MobileNetV2",
+                        type=str,
+                        dest="model_name")
+    parser.add_argument('-d', '--dense-layer-size',
+                        required=False,
+                        nargs="*",
+                        default=[],
+                        type=int,
+                        dest="dense_size")
     args = parser.parse_args()
     batch_size = args.batch
 
@@ -152,16 +170,36 @@ if __name__ == '__main__':
     os.makedirs(class_name, exist_ok=True)
 
     if args.random_init:
-        base_model = MobileNetV2(weights=None,
-                                 include_top=False,
-                                 input_shape=(96, 96, 3),
-                                 pooling='avg')
+        weights = None
     else:
-        base_model = MobileNetV2(weights='imagenet',
-                                 include_top=False,
-                                 input_shape=(96, 96, 3),
-                                 pooling='avg')
-    predictions = Dense(len(out_classes), activation='softmax')(base_model.outputs[0])
+        weights = 'imagenet'
+    if args.model_name == "MobileNetV2":
+        preprocess_input = mobilenetv2.preprocess_input
+        base_model = mobilenetv2.MobileNetV2(weights=weights,
+                                             include_top=False,
+                                             input_shape=(96, 96, 3),
+                                             pooling='avg')
+    elif args.model_name == "InceptionResNetV2":
+        preprocess_input = inception_resnet_v2.preprocess_input
+        base_model = inception_resnet_v2.InceptionResNetV2(weights=weights,
+                                                           include_top=False,
+                                                           input_shape=(96, 96, 3),
+                                                           pooling='avg')
+    elif args.model_name == "NASNetLarge":
+        preprocess_input = nasnet.preprocess_input
+        base_model = nasnet.NASNetLarge(weights=weights,
+                                        include_top=False,
+                                        input_shape=(96, 96, 3),
+                                        pooling='avg')
+    else:
+        raise ValueError("unknown model name {}, should be one of {}".format(args.model_name,
+                                                                             ["MobileNetV2", "InceptionResNetV2",
+                                                                              "NASNetLarge"]))
+
+    predictions = base_model.outputs[0]
+    for s in args.dense_size:
+        predictions = Dense(s, activation='relu')(predictions)
+    predictions = Dense(len(out_classes), activation='softmax')(predictions)
     model = Model(inputs=base_model.input, outputs=predictions)
 
     # model.summary()
@@ -242,44 +280,45 @@ if __name__ == '__main__':
                                       verbose=1,
                                       validation_data=(x_test, y_test),
                                       use_multiprocessing=True)
-        plot_history(history, "dense_")
-        model.save("{0}/mobilenet_{0}_dense.h5".format(class_name), overwrite=True)
+        plot_history(history, "{0}/{1}_{0}_dense_".format(class_name, args.model_name))
+        model.save("{0}/{1}_{0}_dense.h5".format(class_name, args.model_name), overwrite=True)
 
-        # unfroze the 3 last blocks of mobile net
-        for layer in model.layers[:113]:
-            layer.trainable = False
-        for layer in model.layers[113:]:
-            layer.trainable = True
-        model.compile(optimizer=SGD(lr=args.lr, momentum=0.9, decay=args.decay),
-                      loss='categorical_crossentropy', metrics=["accuracy"])
-        history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-                                      steps_per_epoch=ceil(len(x_train) / batch_size),
-                                      epochs=args.epoch_fine_tune,
-                                      verbose=1,
-                                      validation_data=(x_test, y_test),
-                                      use_multiprocessing=True)
-        plot_history(history, "{0}/{0}_fine_tuning_1_".format(class_name))
+        if not args.unfroze_all:
+            # unfroze the 3 last blocks of mobile net
+            for layer in model.layers[:113]:
+                layer.trainable = False
+            for layer in model.layers[113:]:
+                layer.trainable = True
+            model.compile(optimizer=SGD(lr=args.lr, momentum=0.9, decay=args.decay),
+                          loss='categorical_crossentropy', metrics=["accuracy"])
+            history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+                                          steps_per_epoch=ceil(len(x_train) / batch_size),
+                                          epochs=args.epoch_fine_tune,
+                                          verbose=1,
+                                          validation_data=(x_test, y_test),
+                                          use_multiprocessing=True)
+            plot_history(history, "{0}/{1}_{0}_fine_tuning_1_".format(class_name, args.model_name))
 
-        model.save("{0}/mobilenet_{0}_1.h5".format(class_name), overwrite=True)
+            model.save("{0}/{1}_{0}_1.h5".format(class_name, args.model_name), overwrite=True)
 
-        # unfroze the 6 last blocks of mobile net
-        for layer in model.layers[:87]:
-            layer.trainable = False
-        for layer in model.layers[87:]:
-            layer.trainable = True
-        model.compile(optimizer=SGD(lr=args.lr, momentum=0.9, decay=args.decay),
-                      loss='categorical_crossentropy', metrics=["accuracy"])
-        history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-                                      steps_per_epoch=ceil(len(x_train) / batch_size),
-                                      epochs=args.epoch_fine_tune,
-                                      verbose=1,
-                                      validation_data=(x_test, y_test),
-                                      use_multiprocessing=True)
-        plot_history(history, "{0}/{0}_fine_tuning_2_".format(class_name))
+            # unfroze the 6 last blocks of mobile net
+            for layer in model.layers[:87]:
+                layer.trainable = False
+            for layer in model.layers[87:]:
+                layer.trainable = True
+            model.compile(optimizer=SGD(lr=args.lr, momentum=0.9, decay=args.decay),
+                          loss='categorical_crossentropy', metrics=["accuracy"])
+            history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+                                          steps_per_epoch=ceil(len(x_train) / batch_size),
+                                          epochs=args.epoch_fine_tune,
+                                          verbose=1,
+                                          validation_data=(x_test, y_test),
+                                          use_multiprocessing=True)
+            plot_history(history, "{0}/{1}_{0}_fine_tuning_2_".format(class_name, args.model_name))
 
-        model.save("{0}/mobilenet_{0}_2.h5".format(class_name), overwrite=True)
+            model.save("{0}/{1}_{0}_2.h5".format(class_name, args.model_name), overwrite=True)
 
-    # unfroze all mobile net
+    # unfroze all model
     for layer in model.layers:
         layer.trainable = True
     model.compile(optimizer=SGD(lr=args.lr, momentum=0.9, decay=args.decay),
@@ -290,11 +329,6 @@ if __name__ == '__main__':
                                   verbose=1,
                                   validation_data=(x_test, y_test),
                                   use_multiprocessing=True)
-    plot_history(history, "{0}/{0}_fine_tuning_f_".format(class_name))
+    plot_history(history, "{0}/{1}_{0}_fine_tuning_f_".format(class_name, args.model_name))
 
-    model.save("{0}/mobilenet_{0}_f.h5".format(class_name), overwrite=True)
-
-
-
-
-
+    model.save("{0}/{1}_{0}_final.h5".format(class_name, args.model_name), overwrite=True)
