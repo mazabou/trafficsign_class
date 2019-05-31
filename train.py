@@ -65,10 +65,10 @@ classes = {
                     'ph4.4', 'ph4.5', 'ph4.6', 'ph4.8', 'ph5', 'ph5.3', 'ph5.5', 'ph6'],
             "pax": ['pa10', 'pa12', 'pa13', 'pa14', 'pa8', 'pax'],
             "plo": ['pl35', 'pl25', 'pl15', 'pl10', 'pl110', 'pl65', 'pl90'],
-            "po": ['po', 'pw2', 'pw2.5', 'pw3', 'pw3.2', 'pw3.5', 'pw4', 'pw4.2', 'pw4.5',
-                   'p_prohibited_two_wheels_vehicules', 'p_prohibited_bicycle_and_pedestria',
-                   'p_prohibited_bicycle_and_pedestrian_issues', 'p13', 'p15', 'p16', 'p17', 'p18', 'p2', 'p21', 'p22',
-                   'p24', 'p25', 'p28', 'p4', 'p5R', 'p7L', 'p7R', 'p8', 'p15', 'p16', 'p17', 'p18', 'pc']
+            "p_other": ['pw2', 'pw2.5', 'pw3', 'pw3.2', 'pw3.5', 'pw4', 'pw4.2', 'pw4.5',
+                        'p_prohibited_two_wheels_vehicules', 'p_prohibited_bicycle_and_pedestria',
+                        'p_prohibited_bicycle_and_pedestrian_issues', 'p13', 'p15', 'p16', 'p17', 'p18', 'p2', 'p21',
+                        'p22', 'p24', 'p25', 'p28', 'p4', 'p5R', 'p7L', 'p7R', 'p8', 'p15', 'p16', 'p17', 'p18', 'pc']
             },
         "h_symmetry": [],
         "rotation_and_flips": {  # "pne": ('v', 'h', 'd'),
