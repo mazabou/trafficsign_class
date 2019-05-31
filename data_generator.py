@@ -8,7 +8,7 @@ from random import shuffle
 
 class SignDataLoader:
     def __init__(self, path_images_dir, classes_to_detect, images_size, mapping, classes_flip_and_rotation=None,
-                 symmetric_classes=None, train_test_split: float = 0.0):
+                 symmetric_classes=None, train_test_split: float = 0.0, classes_merge=None):
         self.base_dir = path_images_dir
         self.classes = classes_to_detect
         self.images_size = images_size
@@ -24,21 +24,29 @@ class SignDataLoader:
                 self.symmetric_classes[c2] = c1
         self.per_classes_data = {}
         self.train_test_split = train_test_split
+        self.classes_merge = classes_merge
 
     def load_data(self):
         for sign_class in self.classes:
-            for image_path in iglob(os.path.join(self.base_dir, sign_class, "*.jpg")):
-                try:
-                    img = load_img(image_path, target_size=self.images_size)
-                except IOError:
-                    print("Unable to read file {}".format(image_path))
-                    continue
-                img = img_to_array(img)
-                if sign_class in self.classes_flip_and_rotation:
-                    for transformed_image in self.apply_transform(img, self.classes_flip_and_rotation[sign_class]):
-                        self.add_to_train_data(transformed_image, sign_class)
-                else:
-                    self.add_to_train_data(img, sign_class)
+            try:
+                sub_class_list = self.classes_merge[sign_class]
+                if sign_class not in sub_class_list:
+                    sub_class_list.append(sign_class)
+            except (KeyError, TypeError):
+                sub_class_list = [sign_class]
+            for sub_class in sub_class_list:
+                for image_path in iglob(os.path.join(self.base_dir, sub_class, "*.jpg")):
+                    try:
+                        img = load_img(image_path, target_size=self.images_size)
+                    except IOError:
+                        print("Unable to read file {}".format(image_path))
+                        continue
+                    img = img_to_array(img)
+                    if sign_class in self.classes_flip_and_rotation:
+                        for transformed_image in self.apply_transform(img, self.classes_flip_and_rotation[sign_class]):
+                            self.add_to_train_data(transformed_image, sign_class)
+                    else:
+                        self.add_to_train_data(img, sign_class)
         x_train, x_test = [], []
         y_train, y_test = [], []
         for sign_class, sign_images in self.per_classes_data.items():
