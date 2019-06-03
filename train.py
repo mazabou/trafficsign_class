@@ -105,7 +105,7 @@ def plot_history(history, base_name=""):
     plt.clf()
 
 
-if __name__ == '__main__':
+def main():
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -252,8 +252,6 @@ if __name__ == '__main__':
             json.dump(obj=counts, fp=count_json, indent=4)
         y_train = to_categorical(y_train, len(out_classes))
         y_test = to_categorical(y_test, len(out_classes))
-        x_train = np.stack([preprocess_input(x) for x in x_train])
-        x_test = np.stack([preprocess_input(x) for x in x_test])
         np.savez_compressed(data_file_path, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test,
                             out_classes=out_classes)
     print(x_train.shape[0], 'train samples')
@@ -271,7 +269,8 @@ if __name__ == '__main__':
                                  zoom_range=(0.7, 1.1),
                                  fill_mode='nearest',
                                  horizontal_flip=False,
-                                 vertical_flip=False)
+                                 vertical_flip=False,
+                                 preprocessing_function=preprocess_input)
     datagen.fit(x_train)
 
     if not args.random_init:
@@ -338,3 +337,10 @@ if __name__ == '__main__':
     plot_history(history, "{0}/{1}_{0}_fine_tuning_f_".format(class_name, args.model_name))
 
     model.save("{0}/{1}_{0}_final.h5".format(class_name, args.model_name), overwrite=True)
+
+
+
+if __name__ == '__main__':
+    main()
+
+
