@@ -252,6 +252,7 @@ def main():
             json.dump(obj=counts, fp=count_json, indent=4)
         y_train = to_categorical(y_train, len(out_classes))
         y_test = to_categorical(y_test, len(out_classes))
+        x_test = [preprocess_input(i) for i in x_test]
         np.savez_compressed(data_file_path, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test,
                             out_classes=out_classes)
     print(x_train.shape[0], 'train samples')
