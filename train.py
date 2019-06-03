@@ -55,7 +55,7 @@ classes = {
         "signs_classes": ['p1', 'p10', 'p11', 'p12', 'p19', 'p20', 'p23', 'p26', 'p27', 'p3', 'p5L', 'p6', 'p9', 'pax',
                           'pb', 'phx', 'pl100', 'pl120', 'pl20', 'pl30', 'pl40', 'pl5', 'pl50', 'pl60', 'pl70',
                           'pl80', 'pmx', 'p_prohibited_bicycle_and_pedestrian', 'p_prohibited_bus_and_truck',
-                          'p_prohibited_other', 'prx', 'po', 'plo'],
+                          'p_prohibited_other', 'prx', 'p_other', 'plo'],
         "merge_sign_classes": {
             "prx": ['pr10', 'pr100', 'pr20', 'pr30', 'pr40', 'pr45', 'pr50', 'pr60', 'pr70', 'pr80', 'prx'],
             "pmx": ['pm1.5', 'pm10', 'pm13', 'pm15', 'pm2', 'pm2.5', 'pm20', 'pm25', 'pm30', 'pm35', 'pm40', 'pm46',
@@ -76,7 +76,7 @@ classes = {
             # "pnl": ('d',),
             # "pc": ('v', 'h', 'd'),
             "pb": ('v', 'h', 'd'),
-            "po": ('v', 'h', 'd'),
+            "p_other": ('v', 'h', 'd'),
         }
     },
 }
