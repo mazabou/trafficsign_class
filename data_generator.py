@@ -58,7 +58,7 @@ class SignDataLoader:
             y_test += [class_id] * test_count
             y_train += [class_id] * (len(sign_images) - test_count)
         for x in x_train + x_test:
-            assert x.shape == (96, 96, 3)
+            assert x.shape == (self.images_size[0], self.images_size[1], 3)
         return (np.stack(x_train), np.array(y_train)), (np.stack(x_test), np.array(y_test))
 
     def apply_transform(self, img: np.ndarray, transform_list):

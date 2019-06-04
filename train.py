@@ -162,6 +162,11 @@ def main():
                         default=[],
                         type=int,
                         dest="dense_size")
+    parser.add_argument('-is', '--input-size',
+                        required=False,
+                        default=96,
+                        type=int,
+                        dest="input_size")
     args = parser.parse_args()
     batch_size = args.batch
 
@@ -183,19 +188,19 @@ def main():
         preprocess_input = mobilenetv2.preprocess_input
         base_model = mobilenetv2.MobileNetV2(weights=weights,
                                              include_top=False,
-                                             input_shape=(96, 96, 3),
+                                             input_shape=(args.input_size, args.input_size, 3),
                                              pooling='avg')
     elif args.model_name == "InceptionResNetV2":
         preprocess_input = inception_resnet_v2.preprocess_input
         base_model = inception_resnet_v2.InceptionResNetV2(weights=weights,
                                                            include_top=False,
-                                                           input_shape=(96, 96, 3),
+                                                           input_shape=(args.input_size, args.input_size, 3),
                                                            pooling='avg')
     elif args.model_name == "NASNetLarge":
         preprocess_input = nasnet.preprocess_input
         base_model = nasnet.NASNetLarge(weights=weights,
                                         include_top=False,
-                                        input_shape=(96, 96, 3),
+                                        input_shape=(args.input_size, args.input_size, 3),
                                         pooling='avg')
     else:
         raise ValueError("unknown model name {}, should be one of {}".format(args.model_name,
