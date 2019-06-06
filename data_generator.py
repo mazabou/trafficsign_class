@@ -34,6 +34,7 @@ class SignDataLoader:
                     sub_class_list.append(sign_class)
             except (KeyError, TypeError):
                 sub_class_list = [sign_class]
+            print(sign_class, sub_class_list)
             for sub_class in sub_class_list:
                 for image_path in iglob(os.path.join(self.base_dir, sub_class, "*.jpg")):
                     try:
