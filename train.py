@@ -245,15 +245,13 @@ def main():
         with open("{0}/{0}_class_counts.json".format(class_name), 'w') as count_json:
             train_names, train_counts = np.unique(y_train, return_counts=True)
             test_names, test_counts = np.unique(y_test, return_counts=True)
-            counts = {}
+            counts = {n: {"train": 0, "test": 0} for n in mapping.keys()}
             for c, count in zip(train_names, train_counts):
-                counts[mapping_id_to_name[c]] = {"train": int(count), "test": 0}
+                c_name = mapping_id_to_name[c]
+                counts[c_name]["train"] = int(count)
             for c, count in zip(test_names, test_counts):
                 c_name = mapping_id_to_name[c]
-                if c_name not in counts:
-                    counts[c_name] = {"train": 0, "test": int(count)}
-                else:
-                    counts[c_name]["test"] = int(count)
+                counts[c_name]["test"] = int(count)
             json.dump(obj=counts, fp=count_json, indent=4)
         y_train = to_categorical(y_train, len(out_classes))
         y_test = to_categorical(y_test, len(out_classes))
