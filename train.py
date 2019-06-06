@@ -174,6 +174,10 @@ def main():
     out_classes = classes[class_name]["signs_classes"]
     rotation_and_flips = classes[class_name]["rotation_and_flips"]
     h_symmetry_classes = classes[class_name]["h_symmetry"]
+    try:
+        merge_sign_classes = classes[class_name]["merge_sign_classes"]
+    except KeyError:
+        merge_sign_classes = None
 
     mapping = {c: i for i, c in enumerate(out_classes)}
     mapping_id_to_name = {i: c for c, i in mapping.items()}
@@ -240,7 +244,8 @@ def main():
                                      mapping=mapping,
                                      classes_flip_and_rotation=rotation_and_flips,
                                      symmetric_classes=h_symmetry_classes,
-                                     train_test_split=0.2)
+                                     train_test_split=0.2,
+                                     classes_merge=merge_sign_classes)
         (x_train, y_train), (x_test, y_test) = data_loader.load_data()
         with open("{0}/{0}_class_counts.json".format(class_name), 'w') as count_json:
             train_names, train_counts = np.unique(y_train, return_counts=True)
