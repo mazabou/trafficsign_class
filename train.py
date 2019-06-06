@@ -9,6 +9,7 @@ from keras.models import Model
 from keras.utils import to_categorical
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import SGD, rmsprop
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 import os
 from math import ceil
@@ -268,6 +269,21 @@ def main():
     with open("{0}/{0}_mapping.json".format(class_name), 'w') as json_mapping:
         json.dump(mapping, json_mapping, indent=4)
 
+    callbacks = [ModelCheckpoint(filepath="{}/checkpoint.h5",
+                                 monitor="val_loss",
+                                 mode='min',
+                                 verbose=0,
+                                 save_best_only="True",
+                                 save_weights_only=False,
+                                 period=10),
+                 EarlyStopping(monitor='val_loss',
+                               mode='min',
+                               min_delta=0,
+                               patience=20,
+                               verbose=0,
+                               restore_best_weights=True)
+                 ]
+
     datagen = ImageDataGenerator(featurewise_center=False,
                                  featurewise_std_normalization=False,
                                  rotation_range=10,
@@ -293,7 +309,8 @@ def main():
                                       epochs=args.epoch,
                                       verbose=1,
                                       validation_data=(x_test, y_test),
-                                      use_multiprocessing=True)
+                                      use_multiprocessing=True,
+                                      callbacks=callbacks)
         plot_history(history, "{0}/{1}_{0}_dense_".format(class_name, args.model_name))
         model.save("{0}/{1}_{0}_dense.h5".format(class_name, args.model_name), overwrite=True)
 
@@ -310,7 +327,8 @@ def main():
                                           epochs=args.epoch_fine_tune,
                                           verbose=1,
                                           validation_data=(x_test, y_test),
-                                          use_multiprocessing=True)
+                                          use_multiprocessing=True,
+                                          callbacks=callbacks)
             plot_history(history, "{0}/{1}_{0}_fine_tuning_1_".format(class_name, args.model_name))
 
             model.save("{0}/{1}_{0}_1.h5".format(class_name, args.model_name), overwrite=True)
@@ -327,7 +345,8 @@ def main():
                                           epochs=args.epoch_fine_tune,
                                           verbose=1,
                                           validation_data=(x_test, y_test),
-                                          use_multiprocessing=True)
+                                          use_multiprocessing=True,
+                                          callbacks=callbacks)
             plot_history(history, "{0}/{1}_{0}_fine_tuning_2_".format(class_name, args.model_name))
 
             model.save("{0}/{1}_{0}_2.h5".format(class_name, args.model_name), overwrite=True)
@@ -342,7 +361,8 @@ def main():
                                   epochs=args.epoch_fine_tune,
                                   verbose=1,
                                   validation_data=(x_test, y_test),
-                                  use_multiprocessing=True)
+                                  use_multiprocessing=True,
+                                  callbacks=callbacks)
     plot_history(history, "{0}/{1}_{0}_fine_tuning_f_".format(class_name, args.model_name))
 
     model.save("{0}/{1}_{0}_final.h5".format(class_name, args.model_name), overwrite=True)
