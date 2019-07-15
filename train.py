@@ -296,7 +296,7 @@ def main():
                                  verbose=0,
                                  save_best_only="True",
                                  save_weights_only=False,
-                                 period=10),
+                                 period=1),
                  EarlyStopping(monitor='val_loss',
                                mode='min',
                                min_delta=0,
