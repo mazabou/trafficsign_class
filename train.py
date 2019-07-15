@@ -152,7 +152,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("train_class", type=str)
+    parser.add_argument("train_class", type=str, choices=classes.keys())
     parser.add_argument("data_dir", type=str)
     parser.add_argument('-e', "--epoch",
                         required=False,
@@ -300,8 +300,8 @@ def main():
                  EarlyStopping(monitor='val_acc',
                                mode='max',
                                min_delta=0.001,
-                               patience=20,
-                               verbose=0,
+                               patience=40,
+                               verbose=1,
                                restore_best_weights=True)
                  ]
 
