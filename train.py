@@ -290,7 +290,7 @@ def main():
     #             blocks[b].append(i)
     # exit(0)
 
-    callbacks = [ModelCheckpoint(filepath="{}/checkpoint.h5",
+    callbacks = [ModelCheckpoint(filepath="{}/checkpoint.h5".format(class_name),
                                  monitor="val_loss",
                                  mode='min',
                                  verbose=0,
