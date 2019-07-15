@@ -69,7 +69,7 @@ classes = {
             "p_other": ['pw2', 'pw2.5', 'pw3', 'pw3.2', 'pw3.5', 'pw4', 'pw4.2', 'pw4.5',
                         'p_prohibited_two_wheels_vehicules', 'p_prohibited_bicycle_and_pedestria',
                         'p_prohibited_bicycle_and_pedestrian_issues', 'p13', 'p15', 'p16', 'p17', 'p18', 'p2', 'p21',
-                        'p22', 'p24', 'p25', 'p28', 'p4', 'p5R', 'p7L', 'p7R', 'p8', 'p15', 'p16', 'p17', 'p18', 'pc']
+                        'p22', 'p24', 'p25', 'p28', 'p4', 'p5R', 'p7L', 'p7R', 'p8', 'p15', 'pc']
             },
         "h_symmetry": [],
         "rotation_and_flips": {  # "pne": ('v', 'h', 'd'),
@@ -104,6 +104,48 @@ def plot_history(history, base_name=""):
     plt.legend(['Train', 'Test'], loc='upper left')
     plt.savefig(base_name + "loss.png")
     plt.clf()
+
+
+def get_data_for_master_class(class_name: str, mapping, mapping_id_to_name, rotation_and_flips, data_dir: str,
+                              merge_sign_classes, h_symmetry_classes, image_size, ignore_npz: bool, out_classes):
+    data_file_path = "{0}/{0}.npz".format(class_name)
+    if os.path.isfile(data_file_path) and not ignore_npz:
+        savez = np.load(data_file_path)
+        x_train = savez["x_train"]
+        y_train = savez["y_train"]
+        x_test = savez["x_test"]
+        y_test = savez["y_test"]
+    else:
+        data_loader = SignDataLoader(path_images_dir=data_dir,
+                                     classes_to_detect=out_classes,
+                                     images_size=image_size,
+                                     mapping=mapping,
+                                     classes_flip_and_rotation=rotation_and_flips,
+                                     symmetric_classes=h_symmetry_classes,
+                                     train_test_split=0.2,
+                                     classes_merge=merge_sign_classes)
+        (x_train, y_train), (x_test, y_test) = data_loader.load_data()
+        with open("{0}/{0}_class_counts.json".format(class_name), 'w') as count_json:
+            train_names, train_counts = np.unique(y_train, return_counts=True)
+            test_names, test_counts = np.unique(y_test, return_counts=True)
+            counts = {n: {"train": 0, "test": 0} for n in mapping.keys()}
+            for c, count in zip(train_names, train_counts):
+                c_name = mapping_id_to_name[c]
+                counts[c_name]["train"] = int(count)
+            for c, count in zip(test_names, test_counts):
+                c_name = mapping_id_to_name[c]
+                counts[c_name]["test"] = int(count)
+            json.dump(obj=counts, fp=count_json, indent=4)
+        y_train = to_categorical(y_train, len(out_classes))
+        y_test = to_categorical(y_test, len(out_classes))
+        np.savez_compressed(data_file_path, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test,
+                            out_classes=out_classes)
+    print(x_train.shape[0], 'train samples')
+    print(x_test.shape[0], 'test samples')
+    with open("{0}/{0}_mapping.json".format(class_name), 'w') as json_mapping:
+        json.dump(mapping, json_mapping, indent=4)
+
+    return x_train, y_train, x_test, y_test
 
 
 def main():
@@ -168,6 +210,11 @@ def main():
                         default=96,
                         type=int,
                         dest="input_size")
+    parser.add_argument('-viz', '--data-visualisation',
+                        required=False,
+                        default=False,
+                        type=bool,
+                        dest="data_visualisation")
     args = parser.parse_args()
     batch_size = args.batch
 
@@ -185,38 +232,51 @@ def main():
 
     os.makedirs(class_name, exist_ok=True)
 
-    if args.random_init:
-        weights = None
+    x_train, y_train, x_test, y_test = get_data_for_master_class(class_name=class_name,
+                                                                 mapping=mapping,
+                                                                 mapping_id_to_name=mapping_id_to_name,
+                                                                 rotation_and_flips=rotation_and_flips,
+                                                                 data_dir=args.data_dir,
+                                                                 merge_sign_classes=merge_sign_classes,
+                                                                 h_symmetry_classes=h_symmetry_classes,
+                                                                 image_size=(args.input_size, args.input_size),
+                                                                 ignore_npz=args.ignore_npz,
+                                                                 out_classes=out_classes)
+    if args.data_visualisation:
+        preprocess_input = lambda x: x
+        model = None
     else:
-        weights = 'imagenet'
-    if args.model_name == "MobileNetV2":
-        preprocess_input = mobilenetv2.preprocess_input
-        base_model = mobilenetv2.MobileNetV2(weights=weights,
-                                             include_top=False,
-                                             input_shape=(args.input_size, args.input_size, 3),
-                                             pooling='avg')
-    elif args.model_name == "InceptionResNetV2":
-        preprocess_input = inception_resnet_v2.preprocess_input
-        base_model = inception_resnet_v2.InceptionResNetV2(weights=weights,
-                                                           include_top=False,
-                                                           input_shape=(args.input_size, args.input_size, 3),
-                                                           pooling='avg')
-    elif args.model_name == "NASNetLarge":
-        preprocess_input = nasnet.preprocess_input
-        base_model = nasnet.NASNetLarge(weights=weights,
-                                        include_top=False,
-                                        input_shape=(args.input_size, args.input_size, 3),
-                                        pooling='avg')
-    else:
-        raise ValueError("unknown model name {}, should be one of {}".format(args.model_name,
-                                                                             ["MobileNetV2", "InceptionResNetV2",
-                                                                              "NASNetLarge"]))
-
-    predictions = base_model.outputs[0]
-    for s in args.dense_size:
-        predictions = Dense(s, activation='relu')(predictions)
-    predictions = Dense(len(out_classes), activation='softmax')(predictions)
-    model = Model(inputs=base_model.input, outputs=predictions)
+        if args.random_init:
+            weights = None
+        else:
+            weights = 'imagenet'
+        if args.model_name == "MobileNetV2":
+            preprocess_input = mobilenetv2.preprocess_input
+            base_model = mobilenetv2.MobileNetV2(weights=weights,
+                                                 include_top=False,
+                                                 input_shape=(args.input_size, args.input_size, 3),
+                                                 pooling='avg')
+        elif args.model_name == "InceptionResNetV2":
+            preprocess_input = inception_resnet_v2.preprocess_input
+            base_model = inception_resnet_v2.InceptionResNetV2(weights=weights,
+                                                               include_top=False,
+                                                               input_shape=(args.input_size, args.input_size, 3),
+                                                               pooling='avg')
+        elif args.model_name == "NASNetLarge":
+            preprocess_input = nasnet.preprocess_input
+            base_model = nasnet.NASNetLarge(weights=weights,
+                                            include_top=False,
+                                            input_shape=(args.input_size, args.input_size, 3),
+                                            pooling='avg')
+        else:
+            raise ValueError("unknown model name {}, should be one of {}".format(args.model_name,
+                                                                                 ["MobileNetV2", "InceptionResNetV2",
+                                                                                  "NASNetLarge"]))
+        predictions = base_model.outputs[0]
+        for s in args.dense_size:
+            predictions = Dense(s, activation='relu')(predictions)
+        predictions = Dense(len(out_classes), activation='softmax')(predictions)
+        model = Model(inputs=base_model.input, outputs=predictions)
 
     # model.summary()
     # blocks = {}
@@ -230,45 +290,6 @@ def main():
     #             blocks[b].append(i)
     # exit(0)
 
-    data_file_path = "{0}/{0}.npz".format(class_name)
-    if os.path.isfile(data_file_path) and not args.ignore_npz:
-        savez = np.load(data_file_path)
-        x_train = savez["x_train"]
-        y_train = savez["y_train"]
-        x_test = savez["x_test"]
-        y_test = savez["y_test"]
-        out_classes = savez["out_classes"]
-    else:
-        data_loader = SignDataLoader(path_images_dir=args.data_dir,
-                                     classes_to_detect=out_classes,
-                                     images_size=model.input_shape[1:3],
-                                     mapping=mapping,
-                                     classes_flip_and_rotation=rotation_and_flips,
-                                     symmetric_classes=h_symmetry_classes,
-                                     train_test_split=0.2,
-                                     classes_merge=merge_sign_classes)
-        (x_train, y_train), (x_test, y_test) = data_loader.load_data()
-        with open("{0}/{0}_class_counts.json".format(class_name), 'w') as count_json:
-            train_names, train_counts = np.unique(y_train, return_counts=True)
-            test_names, test_counts = np.unique(y_test, return_counts=True)
-            counts = {n: {"train": 0, "test": 0} for n in mapping.keys()}
-            for c, count in zip(train_names, train_counts):
-                c_name = mapping_id_to_name[c]
-                counts[c_name]["train"] = int(count)
-            for c, count in zip(test_names, test_counts):
-                c_name = mapping_id_to_name[c]
-                counts[c_name]["test"] = int(count)
-            json.dump(obj=counts, fp=count_json, indent=4)
-        y_train = to_categorical(y_train, len(out_classes))
-        y_test = to_categorical(y_test, len(out_classes))
-        x_test = np.stack([preprocess_input(i) for i in x_test])
-        np.savez_compressed(data_file_path, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test,
-                            out_classes=out_classes)
-    print(x_train.shape[0], 'train samples')
-    print(x_test.shape[0], 'test samples')
-    with open("{0}/{0}_mapping.json".format(class_name), 'w') as json_mapping:
-        json.dump(mapping, json_mapping, indent=4)
-
     callbacks = [ModelCheckpoint(filepath="{}/checkpoint.h5",
                                  monitor="val_loss",
                                  mode='min',
@@ -279,24 +300,34 @@ def main():
                  EarlyStopping(monitor='val_loss',
                                mode='min',
                                min_delta=0,
-                               patience=20,
+                               patience=40,
                                verbose=0,
                                restore_best_weights=True)
                  ]
 
+    x_test = np.stack([preprocess_input(i) for i in x_test])
     datagen = ImageDataGenerator(featurewise_center=False,
                                  featurewise_std_normalization=False,
                                  rotation_range=10,
-                                 width_shift_range=0.2,
-                                 height_shift_range=0.2,
-                                 brightness_range=(0.3, 1.4),
-                                 shear_range=5.0,
-                                 zoom_range=(0.7, 1.2),
+                                 width_shift_range=0.1,
+                                 height_shift_range=0.1,
+                                 brightness_range=(0.5, 1.4),
+                                 shear_range=3.0,
+                                 zoom_range=(0.7, 1.1),
                                  fill_mode='nearest',
                                  horizontal_flip=False,
                                  vertical_flip=False,
                                  preprocessing_function=preprocess_input)
     datagen.fit(x_train)
+
+    if args.data_visualisation:
+        for b in datagen.flow(x_train, y_train, batch_size=1):
+            im, im_class = b[0][0], b[1][0]
+            im_class = int(np.argmax(im_class))
+            plt.imshow(im.astype(np.int))
+            plt.title(out_classes[im_class])
+            plt.show()
+        return
 
     if not args.random_init:
         # if the network is not randomly initialized, we first fine tune the last layers

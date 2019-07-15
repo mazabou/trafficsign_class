@@ -6,6 +6,8 @@ from keras.applications.mobilenetv2 import MobileNetV2, preprocess_input
 
 from data_generator import SignDataLoader
 
+from train import classes, get_data_for_master_class
+
 
 if __name__ == '__main__':
     out_classes = ["W11-2", "W11-8", "W1-1_L", "W1-1_R", "W1-2_L", "W1-2_R", "W1-3_L", "W1-3_R", "W1-4_L", "W1-4_R",
