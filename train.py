@@ -297,10 +297,10 @@ def main():
                                  save_best_only="True",
                                  save_weights_only=False,
                                  period=1),
-                 EarlyStopping(monitor='val_loss',
-                               mode='min',
-                               min_delta=0,
-                               patience=40,
+                 EarlyStopping(monitor='val_acc',
+                               mode='max',
+                               min_delta=0.001,
+                               patience=20,
                                verbose=0,
                                restore_best_weights=True)
                  ]
