@@ -91,7 +91,7 @@ def plot_history(history, base_name=""):
     plt.title('Model accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.legend(['Train', 'Validation'], loc='upper left')
     plt.savefig(base_name + "accuracy.png")
     plt.clf()
 
@@ -101,7 +101,7 @@ def plot_history(history, base_name=""):
     plt.title('Model loss')
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.legend(['Train', 'Validation'], loc='upper left')
     plt.savefig(base_name + "loss.png")
     plt.clf()
 
@@ -397,7 +397,6 @@ def main():
     plot_history(history, "{0}/{1}_{0}_fine_tuning_f_".format(class_name, args.model_name))
 
     model.save("{0}/{1}_{0}_final.h5".format(class_name, args.model_name), overwrite=True)
-
 
 
 if __name__ == '__main__':
