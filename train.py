@@ -19,6 +19,12 @@ import json
 
 from data_generator import SignDataLoader
 
+
+# Each classes must define three keys: signs_classes, h_symmetry and rotation_and_flips
+# signs_classes: list of the class to use for training this particular super class.
+# h_symmetry: horizontal simetry that transform a sign class into an other one, for example turn left become turn right
+# rotation_and_flips: transformations and flips that keep the sign in the same class, 'v' vertical symmetry,
+#   'h' horizontal and 'd' transposition.
 classes = {
     "Rectangular": {
         "signs_classes": ["W13-1P_10", "W13-1P_15", "W13-1P_20", "W13-1P_25", "W13-1P_30",
