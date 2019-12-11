@@ -39,3 +39,18 @@ complete description of them, please run:
 The predefined super classes of `classes` dict are MUTCD code of US signs for super classes
 `Rectangular`, `Diamond` and `Zebra`. For `RedRoundSign` it is the class names as used in
 the TT100k traffic sign dataset.
+
+
+## Future work
+
+An other project, based on Siamese network, showed very promising results to tackle the 
+problem of sign classification (low data sample for some class, lot of classes).
+This project code is available at 
+[https://github.com/DL-project-Fall2019/Siamese-traffic-signs](https://github.com/DL-project-Fall2019/Siamese-traffic-signs)
+
+## Author
+
+Nicolas Six
+
+
+
