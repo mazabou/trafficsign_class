@@ -6,5 +6,6 @@
 !*.py
 !*.ipynb
 !*.png
+!*.md
 *.npz
 
