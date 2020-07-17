@@ -84,7 +84,3 @@ class SignDataLoader:
             sym = self.symmetric_classes[label]
             self.add_to_train_data(img, label, check_symmetry=False)
             self.add_to_train_data(np.fliplr(img), sym, check_symmetry=False)
-
-
-
-
